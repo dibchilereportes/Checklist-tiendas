@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Control de Tienda — DIB / Bazhars</title>
+<style>
+  :root{
+    --bg:#F2F1EC; --surface:#FFFFFF; --ink:#20242A; --ink-soft:#5B6169; --line:#E1DFD6;
+    --teal:#28565C; --teal-deep:#183C41; --brick:#B8412E; --moss:#3E7D5A; --amber:#C08A2E;
+    --muted:#9A9A8E; --radius:10px;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, 'SF Mono', 'Menlo', 'Consolas', monospace;
+  }
+  *{box-sizing:border-box;}
+  html{ height:100%; -webkit-text-size-adjust:100%; }
+  body{ margin:0; min-height:100%; background:var(--bg); color:var(--ink); font-family:var(--font-body); -webkit-font-smoothing:antialiased; }
+  .app{max-width:920px;margin:0 auto;padding:0 0 calc(40px + env(safe-area-inset-bottom));}
+  header.top{ background:var(--teal-deep); color:#F2F1EC; padding:22px 20px 0 20px; border-bottom:4px solid var(--brick); }
+  .brandrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .brandrow h1{ font-family:var(--font-display); font-size:22px;letter-spacing:0.2px;margin:0 0 4px 0;font-weight:700; }
+  .brandrow .sub{font-size:12.5px;color:#B9C7C4;margin-bottom:16px;}
+  .gear{background:none;border:none;color:#C7D3D1;font-size:18px;cursor:pointer;padding:4px;}
+  nav.tabs{display:flex;gap:2px;margin-top:6px;flex-wrap:nowrap;}
+  nav.tabs button{ flex:1; background:transparent;border:none;color:#C7D3D1; padding:11px 4px;font-size:12px;font-weight:600;cursor:pointer;
+    border-bottom:3px solid transparent;font-family:var(--font-body); -webkit-tap-highlight-color:transparent;white-space:nowrap; }
+  nav.tabs button.active{color:#fff;border-bottom-color:var(--brick);}
+  @media (max-width:400px){ nav.tabs button{font-size:10px;padding:10px 2px;} }
+  main{padding:18px 16px 0;}
+  .card{ background:var(--surface);border:1px solid var(--line);border-radius:var(--radius); padding:16px;margin-bottom:14px; }
+  label.field-label{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+  select, input[type=text], input[type=date], input[type=url], textarea{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;
+    font-family:var(--font-body);font-size:16px;background:#FBFAF7;color:var(--ink);
+  }
+  textarea{resize:vertical;min-height:44px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:560px){.row2{grid-template-columns:1fr;}}
+  optgroup{font-weight:600;}
+  .cat-block{margin-bottom:16px;}
+  .cat-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .cat-head .dot{width:9px;height:9px;border-radius:2px;background:var(--teal);}
+  .cat-head h3{font-family:var(--font-display);font-size:14.5px;margin:0;letter-spacing:0.2px;}
+  .cat-score{margin-left:auto;font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);}
+  .item{border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px;background:#FCFBF9;}
+  .item-top{display:flex;align-items:flex-start;gap:8px;}
+  .item-text{font-size:13.5px;line-height:1.35;flex:1;}
+  .crit{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brick);margin-right:6px;vertical-align:middle;}
+  .status-btns{display:flex;gap:6px;margin-top:8px;}
+  .status-btns button{ flex:1;padding:11px 4px;min-height:40px;border-radius:7px;border:1px solid var(--line);background:#fff;
+    font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink-soft);-webkit-tap-highlight-color:transparent; }
+  .status-btns button.sel-ok{background:var(--moss);color:#fff;border-color:var(--moss);}
+  .status-btns button.sel-bad{background:var(--brick);color:#fff;border-color:var(--brick);}
+  .status-btns button.sel-na{background:var(--muted);color:#fff;border-color:var(--muted);}
+  .item-extra{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;}
+  .item-extra input[type=text]{flex:1;min-width:120px;font-size:16px;padding:6px 8px;}
+  .photo-btn{ font-size:11.5px;padding:6px 9px;border-radius:6px;border:1px dashed var(--ink-soft);
+    background:transparent;color:var(--ink-soft);cursor:pointer;white-space:nowrap; }
+  .photo-btn.has{border-style:solid;border-color:var(--teal);color:var(--teal);}
+  .thumb-wrap{position:relative;display:inline-block;}
+  .thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--line);}
+  .thumb-x{position:absolute;top:-6px;right:-6px;background:var(--brick);color:#fff;border:none;
+    width:16px;height:16px;border-radius:50%;font-size:10px;line-height:16px;cursor:pointer;padding:0;}
+  .req-photo{font-size:10.5px;color:var(--brick);margin-top:4px;}
+  .footer-bar{ background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px;display:flex;align-items:center;gap:14px;margin:0 0 20px; }
+  .score-badge{ font-family:var(--font-mono);font-weight:600;font-size:20px;
+    width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    border:3px solid var(--teal);color:var(--teal);flex-shrink:0; }
+  .score-badge.warn{border-color:var(--amber);color:var(--amber);}
+  .score-badge.bad{border-color:var(--brick);color:var(--brick);}
+  .save-btn{ flex:1;background:var(--teal-deep);color:#fff;border:none;border-radius:8px;
+    padding:14px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:var(--font-body); }
+  .save-btn:disabled{background:var(--muted);cursor:not-allowed;}
+  h2.section-title{font-family:var(--font-display);font-size:16px;margin:2px 0 12px;}
+  .empty{color:var(--ink-soft);font-size:13.5px;padding:20px;text-align:center;}
+  .visit-row{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:#FCFBF9;cursor:pointer;}
+  .visit-row .mini-score{font-family:var(--font-mono);font-weight:600;font-size:15px;width:44px;text-align:center;}
+  .visit-row .meta{flex:1;}
+  .visit-row .meta .d{font-size:13px;font-weight:600;}
+  .visit-row .meta .s{font-size:11.5px;color:var(--ink-soft);}
+  .del-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;}
+  .detail-modal{position:fixed;inset:0;background:rgba(20,24,26,0.55);display:flex;align-items:flex-end;justify-content:center;z-index:50;}
+  .detail-sheet{background:var(--surface);width:100%;max-width:920px;max-height:88vh;overflow-y:auto;border-radius:14px 14px 0 0;padding:18px;}
+  .detail-sheet .close-x{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink-soft);}
+  .detail-item{border-bottom:1px solid var(--line);padding:9px 0;}
+  .detail-item .st{font-size:11px;font-weight:700;text-transform:uppercase;}
+  .detail-item .st.ok{color:var(--moss);} .detail-item .st.bad{color:var(--brick);} .detail-item .st.na{color:var(--muted);}
+  .detail-item img{max-width:150px;border-radius:6px;margin-top:6px;display:block;}
+  .detail-item .cm{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+  .stat-select{margin-bottom:14px;}
+  .rank-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .rank-table{width:100%;min-width:480px;border-collapse:collapse;font-size:13px;}
+  .rank-table th{text-align:left;font-size:11px;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--line);padding:6px 8px;}
+  .rank-table td{padding:8px;border-bottom:1px solid var(--line);}
+  .rank-table td.sc{font-family:var(--font-mono);font-weight:600;}
+  .badgebrand{font-size:10px;padding:1px 6px;border-radius:4px;background:var(--teal);color:#fff;margin-right:6px;}
+  .badgebrand.bz{background:var(--brick);}
+  .fail-list{list-style:none;padding:0;margin:10px 0 0;}
+  .fail-list li{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--line);}
+  .fail-list li .n{color:var(--ink-soft);}
+  .status-line{font-size:12px;padding:8px 10px;border-radius:7px;margin-bottom:10px;}
+  .status-line.ok{background:#E4F0E9;color:var(--moss);}
+  .status-line.bad{background:#FCEBE8;color:var(--brick);}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brandrow">
+      <div>
+        <h1>Control de Tienda</h1>
+        <div class="sub">Checklist online — DIB / Bazhars</div>
+      </div>
+      <button class="gear" id="gearBtn" title="Configuración">⚙</button>
+    </div>
+    <nav class="tabs" id="navTabs">
+      <button data-tab="nueva" class="active">Visita</button>
+      <button data-tab="historial">Historial</button>
+      <button data-tab="stats">Stats</button>
+      <button data-tab="ranking">Ranking</button>
+      <button data-tab="export">Exportar</button>
+    </nav>
+  </header>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ======================= CONFIG (URL del backend Apps Script) ======================= */
+function getApiUrl(){ return localStorage.getItem('checklistApiUrl') || ''; }
+function setApiUrl(u){ localStorage.setItem('checklistApiUrl', u); }
+
+/* ======================= DATA ======================= */
+const STORES = [
+  {id:'dib_outlet_el_salto', brand:'DIB', name:'DIB Outlet El Salto'},
+  {id:'dib_cerrillos_plaza_oeste', brand:'DIB', name:'DIB Cerrillos Plaza Oeste'},
+  {id:'dib_vina_local_telas', brand:'DIB', name:'DIB Viña Local Telas'},
+  {id:'dib_vina_local_alfombras', brand:'DIB', name:'DIB Viña Local Alfombras'},
+  {id:'dib_quilicura_easton_center', brand:'DIB', name:'DIB Quilicura Easton Center'},
+  {id:'dib_temuco_easton', brand:'DIB', name:'DIB Temuco Easton'},
+  {id:'dib_la_florida', brand:'DIB', name:'DIB La Florida'},
+  {id:'dib_san_joaquin_la_fabrica', brand:'DIB', name:'DIB San Joaquín La Fábrica'},
+  {id:'dib_maipu_vivo', brand:'DIB', name:'DIB Maipú Vivo'},
+  {id:'dib_puerto_montt_costanera', brand:'DIB', name:'DIB Puerto Montt Costanera'},
+  {id:'dib_temuco_vivo', brand:'DIB', name:'DIB Temuco Vivo'},
+  {id:'dib_vina_outlet_park', brand:'DIB', name:'DIB Viña Outlet Park'},
+  {id:'dib_puerto_montt_alerce', brand:'DIB', name:'DIB Puerto Montt Alerce'},
+  {id:'dib_rancagua', brand:'DIB', name:'DIB Rancagua'},
+  {id:'bz_parque_arauco', brand:'BAZHARS', name:'Bazhars Parque Arauco'},
+  {id:'bz_trebol', brand:'BAZHARS', name:'Bazhars Trébol'},
+  {id:'bz_vitacura', brand:'BAZHARS', name:'Bazhars Vitacura'},
+  {id:'bz_la_serena', brand:'BAZHARS', name:'Bazhars La Serena'},
+  {id:'bz_la_dehesa', brand:'BAZHARS', name:'Bazhars La Dehesa'},
+  {id:'bz_montemar', brand:'BAZHARS', name:'Bazhars Montemar'},
+  {id:'bz_temuco', brand:'BAZHARS', name:'Bazhars Temuco'},
+];
+const CHECKLIST = [
+  {cat:'Personal', items:[
+    {id:'p1', text:'Dotación completa presente según turno planificado', crit:false},
+    {id:'p2', text:'Uniforme y presentación personal correcta (aseo, cabello, credencial)', crit:true},
+    {id:'p3', text:'Personal distribuido en piso de venta, no concentrado en caja/bodega', crit:false},
+  ]},
+  {cat:'Presentación', items:[
+    {id:'e1', text:'Vitrina y fachada limpias, exhibición vigente y atractiva', crit:true},
+    {id:'e2', text:'Mobiliario, exhibidores y maniquíes en buen estado (sin roturas)', crit:false},
+    {id:'e3', text:'Señalética de precios y promociones visible, correcta y vigente', crit:true},
+  ]},
+  {cat:'Orden', items:[
+    {id:'o1', text:'Productos ordenados y clasificados por línea/categoría', crit:false},
+    {id:'o2', text:'Pasillos y zonas de circulación despejados', crit:false},
+    {id:'o3', text:'Bodega/trastienda ordenada y con stock identificado', crit:false},
+  ]},
+  {cat:'Limpieza', items:[
+    {id:'l1', text:'Piso limpio, sin polvo ni residuos', crit:true},
+    {id:'l2', text:'Mesones, vitrinas y muebles sin polvo', crit:false},
+    {id:'l3', text:'Baño/comedor de personal limpio y operativo', crit:false},
+  ]},
+  {cat:'Protocolo de atención', items:[
+    {id:'a1', text:'Saludo y abordaje al cliente según protocolo', crit:false},
+    {id:'a2', text:'Indagación de necesidad y asesoría de producto', crit:false},
+    {id:'a3', text:'Cierre de venta y despedida conforme a protocolo', crit:false},
+  ]},
+];
+const ALL_ITEMS = CHECKLIST.flatMap(c => c.items.map(i => ({...i, cat:c.cat})));
+
+/* ======================= STATE ======================= */
+let state = {
+  tab: 'nueva',
+  draft: { storeId:'', auditor:'', responses:{} },
+  period: { mode:'all', from:'', to:'' },
+};
+ALL_ITEMS.forEach(i => state.draft.responses[i.id] = {status:null, comment:'', photo:null});
+let rowsCache = null;
+
+/* ======================= API ======================= */
+async function apiGet(qs){
+  const url = getApiUrl();
+  if(!url) throw new Error('NO_CONFIG');
+  const res = await fetch(url + (qs?('?'+qs):''));
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+async function apiPost(payload){
+  const url = getApiUrl();
+  if(!url) throw new Error('NO_CONFIG');
+  const res = await fetch(url, {
+    method:'POST',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+function estadoToStatus(e){ return e==='ok'||e==='bad'||e==='na' ? e : null; }
+
+function groupRows(rows){
+  const byVisit = {};
+  rows.forEach(r=>{
+    if(!byVisit[r.visit_id]){
+      byVisit[r.visit_id] = { id:r.visit_id, storeId:r.tienda_id, date:r.fecha, auditor:r.auditor, responses:{} };
+    }
+    byVisit[r.visit_id].responses[r.item_id] = { status: estadoToStatus(r.estado), comment:r.comentario||'', photo:r.foto_url||null };
+  });
+  const result = {};
+  STORES.forEach(s=>result[s.id]=[]);
+  Object.keys(byVisit).forEach(vid=>{
+    const v = byVisit[vid];
+    const score = computeScore(v.responses);
+    v.scoreOverall = score.overall;
+    v.scoreByCat = score.byCat;
+    if(!result[v.storeId]) result[v.storeId] = [];
+    result[v.storeId].push(v);
+  });
+  return result;
+}
+
+async function loadAllVisits(force){
+  if(rowsCache && !force) return groupRows(rowsCache);
+  const json = await apiGet('action=list');
+  if(!json.ok) throw new Error(json.error||'Error al leer datos');
+  rowsCache = json.rows;
+  return groupRows(rowsCache);
+}
+async function loadVisits(storeId){
+  const all = await loadAllVisits();
+  return all[storeId] || [];
+}
+
+/* ======================= SCORING ======================= */
+function computeScore(responses){
+  let ok=0, tot=0;
+  const byCat = {};
+  CHECKLIST.forEach(c=>{
+    let cok=0, ctot=0;
+    c.items.forEach(i=>{
+      const st = responses[i.id] ? responses[i.id].status : null;
+      if(st==='ok'||st==='bad'){ ctot++; tot++; if(st==='ok'){cok++; ok++;} }
+    });
+    byCat[c.cat] = ctot ? Math.round(cok/ctot*100) : null;
+  });
+  return { overall: tot? Math.round(ok/tot*100) : null, byCat };
+}
+
+/* ======================= COMPRESION DE FOTOS ======================= */
+function fileToCompressedDataURL(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 480;
+        const scale = Math.min(1, maxW/img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width*scale;
+        canvas.height = img.height*scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.55));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ======================= TABS ======================= */
+function setTab(t){
+  state.tab = t;
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===t));
+  render();
+}
+document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click', ()=>setTab(b.dataset.tab)));
+document.getElementById('gearBtn').addEventListener('click', renderConfig);
+
+function storeOptionsHTML(selected){
+  const dib = STORES.filter(s=>s.brand==='DIB');
+  const bz = STORES.filter(s=>s.brand==='BAZHARS');
+  const opt = s => `<option value="${s.id}" ${s.id===selected?'selected':''}>${s.name}</option>`;
+  return `<option value="">Selecciona tienda…</option>
+    <optgroup label="DIB">${dib.map(opt).join('')}</optgroup>
+    <optgroup label="BAZHARS">${bz.map(opt).join('')}</optgroup>`;
+}
+function escAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
+
+/* ======================= FILTRO DE PERIODO ======================= */
+function periodFilterHTML(){
+  const custom = state.period.mode==='custom';
+  return `<div class="card">
+    <label class="field-label">Periodo</label>
+    <select id="periodMode" style="margin-bottom:${custom?'10px':'0'};">
+      <option value="all" ${state.period.mode==='all'?'selected':''}>Todo el periodo</option>
+      <option value="thisMonth" ${state.period.mode==='thisMonth'?'selected':''}>Este mes</option>
+      <option value="lastMonth" ${state.period.mode==='lastMonth'?'selected':''}>Mes anterior</option>
+      <option value="last30" ${state.period.mode==='last30'?'selected':''}>Últimos 30 días</option>
+      <option value="custom" ${custom?'selected':''}>Rango personalizado</option>
+    </select>
+    ${custom?`<div class="row2">
+      <div><label class="field-label">Desde</label><input type="date" id="periodFrom" value="${state.period.from||''}"></div>
+      <div><label class="field-label">Hasta</label><input type="date" id="periodTo" value="${state.period.to||''}"></div>
+    </div>`:''}
+  </div>`;
+}
+function applyPeriodMode(mode){
+  const today = new Date();
+  const pad = n=>String(n).padStart(2,'0');
+  const iso = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  if(mode==='all'){ state.period = {mode:'all', from:'', to:''}; }
+  else if(mode==='thisMonth'){
+    const first = new Date(today.getFullYear(), today.getMonth(), 1);
+    state.period = {mode:mode, from: iso(first), to: iso(today)};
+  } else if(mode==='lastMonth'){
+    const first = new Date(today.getFullYear(), today.getMonth()-1, 1);
+    const last = new Date(today.getFullYear(), today.getMonth(), 0);
+    state.period = {mode:mode, from: iso(first), to: iso(last)};
+  } else if(mode==='last30'){
+    const from = new Date(today); from.setDate(from.getDate()-30);
+    state.period = {mode:mode, from: iso(from), to: iso(today)};
+  } else if(mode==='custom'){
+    state.period = {mode:mode, from: state.period.from||iso(today), to: state.period.to||iso(today)};
+  }
+}
+function bindPeriodBar(onChange){
+  const sel = document.getElementById('periodMode');
+  if(sel) sel.addEventListener('change', e=>{ applyPeriodMode(e.target.value); onChange(); });
+  const cFrom = document.getElementById('periodFrom');
+  const cTo = document.getElementById('periodTo');
+  if(cFrom) cFrom.addEventListener('change', e=>{ state.period.from = e.target.value; onChange(); });
+  if(cTo) cTo.addEventListener('change', e=>{ state.period.to = e.target.value; onChange(); });
+}
+function inPeriod(iso){
+  if(state.period.mode==='all') return true;
+  if(!state.period.from || !state.period.to) return true;
+  const d = new Date(iso);
+  const df = new Date(state.period.from+'T00:00:00');
+  const dt = new Date(state.period.to+'T23:59:59');
+  return d>=df && d<=dt;
+}
+function periodLabel(){
+  if(state.period.mode==='all') return 'todo el periodo';
+  return 'del '+ (state.period.from||'') +' al '+ (state.period.to||'');
+}
+
+/* ======================= RENDER: CONFIGURACION ======================= */
+function renderConfig(){
+  const current = getApiUrl();
+  const html = `<div class="card">
+    <h2 class="section-title">Configuración — backend Google</h2>
+    <div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;">
+      Pega aquí la URL de tu Apps Script (Implementar &gt; Nueva implementación &gt; Aplicación web). Se guarda solo en este navegador.
+    </div>
+    <label class="field-label">URL del backend</label>
+    <input type="url" id="apiUrlInp" placeholder="https://script.google.com/macros/s/AKfycb.../exec" value="${escAttr(current)}">
+    <div style="margin-top:10px;display:flex;gap:8px;">
+      <button class="save-btn" id="testBtn" style="flex:1;">Probar conexión</button>
+      <button class="save-btn" id="saveCfgBtn" style="flex:1;background:var(--teal);">Guardar</button>
+    </div>
+    <div id="cfgStatus" style="margin-top:10px;"></div>
+  </div>`;
+  document.getElementById('main').innerHTML = html;
+  document.getElementById('testBtn').addEventListener('click', async ()=>{
+    const val = document.getElementById('apiUrlInp').value.trim();
+    const statusEl = document.getElementById('cfgStatus');
+    statusEl.innerHTML = '<div class="status-line">Probando…</div>';
+    try{
+      const res = await fetch(val + '?action=ping');
+      const json = await res.json();
+      statusEl.innerHTML = json.ok ? '<div class="status-line ok">Conexión OK — backend activo.</div>' : '<div class="status-line bad">Respondió pero con error: '+(json.error||'desconocido')+'</div>';
+    }catch(err){
+      statusEl.innerHTML = '<div class="status-line bad">No se pudo conectar: '+err.message+'</div>';
+    }
+  });
+  document.getElementById('saveCfgBtn').addEventListener('click', ()=>{
+    const val = document.getElementById('apiUrlInp').value.trim();
+    setApiUrl(val);
+    rowsCache = null;
+    document.getElementById('cfgStatus').innerHTML = '<div class="status-line ok">Guardado.</div>';
+    setTimeout(()=>{ state.tab='nueva'; document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab==='nueva')); render(); }, 500);
+  });
+}
+
+/* ======================= RENDER: NUEVA VISITA ======================= */
+function renderNueva(){
+  if(!getApiUrl()){ renderConfig(); return; }
+  const d = state.draft;
+  const score = computeScore(d.responses);
+  const today = new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  let html = `<div class="card">
+    <div class="row2">
+      <div><label class="field-label">Tienda</label><select id="storeSel">${storeOptionsHTML(d.storeId)}</select></div>
+      <div><label class="field-label">Auditor / Responsable</label><input type="text" id="auditorInp" value="${escAttr(d.auditor)}" placeholder="Nombre (opcional)"></div>
+    </div>
+    <div style="margin-top:8px;font-size:12px;color:var(--ink-soft)">Fecha visita: ${today}</div>
+  </div>`;
+
+  if(!d.storeId){
+    html += `<div class="empty">Selecciona una tienda para iniciar el checklist.</div>`;
+    document.getElementById('main').innerHTML = html;
+    bindNuevaTop();
+    return;
+  }
+
+  CHECKLIST.forEach(cat=>{
+    let catOk=0, catTot=0;
+    cat.items.forEach(i=>{ const st=d.responses[i.id].status; if(st==='ok'||st==='bad'){catTot++; if(st==='ok')catOk++;} });
+    const catPct = catTot? Math.round(catOk/catTot*100)+'%' : '—';
+    html += `<div class="cat-block"><div class="cat-head"><span class="dot"></span><h3>${cat.cat}</h3><span class="cat-score">${catPct}</span></div>`;
+    cat.items.forEach(i=>{
+      const r = d.responses[i.id];
+      const needsPhoto = i.crit && r.status==='bad' && !r.photo;
+      html += `<div class="item" data-item="${i.id}">
+        <div class="item-top"><div class="item-text">${i.crit?'<span class="crit" title="Punto crítico"></span>':''}${i.text}</div></div>
+        <div class="status-btns">
+          <button data-st="ok" class="${r.status==='ok'?'sel-ok':''}">Cumple</button>
+          <button data-st="bad" class="${r.status==='bad'?'sel-bad':''}">No cumple</button>
+          <button data-st="na" class="${r.status==='na'?'sel-na':''}">N/A</button>
+        </div>
+        <div class="item-extra">
+          <input type="text" class="cmInp" placeholder="Comentario (opcional)" value="${escAttr(r.comment)}">
+          <button class="photo-btn ${r.photo?'has':''}" data-act="photo">${r.photo?'Foto ✓':'📷 Adjuntar'}</button>
+          <input type="file" accept="image/*" class="fileInp" style="display:none">
+          ${r.photo?`<span class="thumb-wrap"><img class="thumb" src="${r.photo}"><button class="thumb-x" data-act="delphoto">×</button></span>`:''}
+        </div>
+        ${needsPhoto?'<div class="req-photo">Punto crítico sin cumplir — se recomienda adjuntar foto de respaldo</div>':''}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  const badgeClass = score.overall===null?'':(score.overall>=90?'':score.overall>=70?'warn':'bad');
+  html += `<div class="footer-bar">
+    <div class="score-badge ${badgeClass}">${score.overall===null?'—':score.overall+'%'}</div>
+    <button class="save-btn" id="saveBtn" ${score.overall===null?'disabled':''}>Guardar visita</button>
+  </div>`;
+
+  document.getElementById('main').innerHTML = html;
+  bindNuevaTop();
+  bindNuevaItems();
+  const saveBtnEl = document.getElementById('saveBtn');
+  if(saveBtnEl) saveBtnEl.addEventListener('click', saveVisit);
+}
+function bindNuevaTop(){
+  const sel = document.getElementById('storeSel');
+  if(sel) sel.addEventListener('change', e=>{ state.draft.storeId = e.target.value; render(); });
+  const auditorEl = document.getElementById('auditorInp');
+  if(auditorEl) auditorEl.addEventListener('input', e=>{ state.draft.auditor = e.target.value; });
+}
+function bindNuevaItems(){
+  document.querySelectorAll('.item').forEach(itemEl=>{
+    const id = itemEl.dataset.item;
+    itemEl.querySelectorAll('.status-btns button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ state.draft.responses[id].status = btn.dataset.st; render(); });
+    });
+    itemEl.querySelector('.cmInp').addEventListener('input', e=>{ state.draft.responses[id].comment = e.target.value; });
+    const photoBtn = itemEl.querySelector('[data-act="photo"]');
+    const fileInp = itemEl.querySelector('.fileInp');
+    photoBtn.addEventListener('click', ()=> fileInp.click());
+    fileInp.addEventListener('change', async e=>{
+      const f = e.target.files[0];
+      if(!f) return;
+      const dataUrl = await fileToCompressedDataURL(f);
+      state.draft.responses[id].photo = dataUrl;
+      render();
+    });
+    const delBtn = itemEl.querySelector('[data-act="delphoto"]');
+    if(delBtn) delBtn.addEventListener('click', e=>{ e.stopPropagation(); state.draft.responses[id].photo = null; render(); });
+  });
+}
+async function saveVisit(){
+  const d = state.draft;
+  const score = computeScore(d.responses);
+  const store = STORES.find(s=>s.id===d.storeId);
+  const visitId = 'v'+Date.now();
+  const fechaISO = new Date().toISOString().slice(0,10);
+  const rows = ALL_ITEMS.map(i=>{
+    const r = d.responses[i.id];
+    return {
+      visit_id: visitId, tienda_id: d.storeId, tienda_nombre: store.name, marca: store.brand,
+      auditor: d.auditor||'', fecha: fechaISO, categoria: i.cat, item_id: i.id, item_texto: i.text,
+      critico: i.crit?'Si':'No', estado: r.status||'', comentario: r.comment||'', foto: r.photo||null,
+      cumplimiento_visita: score.overall
+    };
+  });
+  const btn = document.getElementById('saveBtn');
+  if(btn){ btn.disabled=true; btn.textContent='Guardando…'; }
+  try{
+    const res = await apiPost({ rows });
+    if(!res.ok) throw new Error(res.error||'Error desconocido');
+    rowsCache = null;
+    state.draft = { storeId:'', auditor:'', responses:{} };
+    ALL_ITEMS.forEach(i => state.draft.responses[i.id] = {status:null, comment:'', photo:null});
+    alert('Visita guardada — '+store.name+' · Cumplimiento '+score.overall+'%');
+    setTab('historial');
+  }catch(err){
+    alert('No se pudo guardar: '+err.message+'\n\nRevisa la URL del backend en Configuración (⚙).');
+    if(btn){ btn.disabled=false; btn.textContent='Guardar visita'; }
+  }
+}
+
+/* ======================= RENDER: HISTORIAL ======================= */
+let histStoreId = '';
+async function renderHistorial(){
+  if(!getApiUrl()){ renderConfig(); return; }
+  let html = `<div class="card"><label class="field-label">Tienda</label><select id="histSel">${storeOptionsHTML(histStoreId)}</select></div>`;
+  if(!histStoreId){
+    html += `<div class="empty">Selecciona una tienda para ver su historial de visitas.</div>`;
+    document.getElementById('main').innerHTML = html;
+    document.getElementById('histSel').addEventListener('change', e=>{ histStoreId=e.target.value; renderHistorial(); });
+    return;
+  }
+  document.getElementById('main').innerHTML = html + '<div class="empty">Cargando…</div>';
+  let visits;
+  try{ visits = (await loadVisits(histStoreId)).filter(v=>inPeriod(v.date)).sort((a,b)=> new Date(b.date)-new Date(a.date)); }
+  catch(err){ document.getElementById('main').innerHTML = html + errorCard(err); return; }
+
+  html += periodFilterHTML();
+  if(visits.length===0){
+    html += `<div class="empty">Sin visitas registradas en ${periodLabel()}.</div>`;
+  }else{
+    visits.forEach(v=>{
+      const dt = new Date(v.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
+      const color = v.scoreOverall>=90?'':(v.scoreOverall>=70?'color:var(--amber)':'color:var(--brick)');
+      html += `<div class="visit-row" data-vid="${v.id}">
+        <div class="mini-score" style="${color}">${v.scoreOverall}%</div>
+        <div class="meta"><div class="d">${dt}</div><div class="s">${v.auditor||'Sin auditor registrado'}</div></div>
+        <button class="del-btn" data-del="${v.id}">🗑</button>
+      </div>`;
+    });
+  }
+  document.getElementById('main').innerHTML = html;
+  document.getElementById('histSel').addEventListener('change', e=>{ histStoreId=e.target.value; renderHistorial(); });
+  bindPeriodBar(renderHistorial);
+  document.querySelectorAll('.visit-row').forEach(row=>{
+    row.addEventListener('click', e=>{ if(e.target.dataset.del) return; openVisitDetail(row.dataset.vid, visits); });
+  });
+  document.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', async e=>{
+      e.stopPropagation();
+      if(!confirm('¿Eliminar esta visita? Esta acción no se puede deshacer.')) return;
+      try{
+        await apiPost({ action:'delete_visit', visit_id: btn.dataset.del });
+        rowsCache = null;
+        renderHistorial();
+      }catch(err){ alert('No se pudo eliminar: '+err.message); }
+    });
+  });
+}
+function openVisitDetail(vid, visits){
+  const v = visits.find(x=>x.id===vid);
+  if(!v) return;
+  const dt = new Date(v.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const storeName = STORES.find(s=>s.id===histStoreId).name;
+  let body = `<button class="close-x" id="closeDetail">×</button>
+    <h2 class="section-title">${storeName} — ${dt}</h2>
+    <div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Auditor: ${v.auditor||'—'} · Cumplimiento general: <b>${v.scoreOverall}%</b></div>`;
+  CHECKLIST.forEach(cat=>{
+    body += `<div style="margin-top:10px;font-weight:600;font-size:13px;">${cat.cat} — ${v.scoreByCat[cat.cat]===null?'N/A':v.scoreByCat[cat.cat]+'%'}</div>`;
+    cat.items.forEach(i=>{
+      const r = v.responses[i.id] || {status:null,comment:'',photo:null};
+      const stLabel = r.status==='ok'?'Cumple':r.status==='bad'?'No cumple':r.status==='na'?'N/A':'Sin evaluar';
+      const stCls = r.status==='ok'?'ok':r.status==='bad'?'bad':'na';
+      body += `<div class="detail-item">
+        <div>${i.text}</div><div class="st ${stCls}">${stLabel}</div>
+        ${r.comment?`<div class="cm">${r.comment}</div>`:''}
+        ${r.photo?`<img src="${r.photo}">`:''}
+      </div>`;
+    });
+  });
+  const overlay = document.createElement('div');
+  overlay.className = 'detail-modal';
+  overlay.innerHTML = `<div class="detail-sheet">${body}</div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('#closeDetail').addEventListener('click', ()=>overlay.remove());
+}
+function errorCard(err){
+  return `<div class="card"><div class="status-line bad">No se pudo cargar la información: ${err.message}<br>Revisa la URL del backend en Configuración (⚙).</div></div>`;
+}
+
+/* ======================= MINI-CHARTS ======================= */
+function buildBarListHTML(items){
+  return items.map(it=>{
+    const pct = it.value===null ? 0 : it.value;
+    return `<div style="margin-bottom:9px;">
+      <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-soft);margin-bottom:3px;">
+        <span>${it.label}</span><span style="font-family:var(--font-mono);font-weight:600;color:var(--ink);">${it.value===null?'—':it.value+'%'}</span>
+      </div>
+      <div style="background:#EFEDE6;border-radius:5px;height:10px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${it.color};border-radius:5px;"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function buildTrendSVG(points){
+  if(points.length===0) return '<div class="empty">Sin datos en este periodo.</div>';
+  const w=320, h=150, padL=26, padR=8, padT=10, padB=22;
+  const innerW=w-padL-padR, innerH=h-padT-padB;
+  const n=points.length;
+  const stepX = n>1 ? innerW/(n-1) : 0;
+  const xy = points.map((p,idx)=>{
+    const x = padL + (n>1 ? idx*stepX : innerW/2);
+    const y = padT + innerH - (p.value/100*innerH);
+    return {x:x,y:y,label:p.label};
+  });
+  const pathD = xy.map((p,i)=> (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const areaD = pathD + ' L'+xy[xy.length-1].x.toFixed(1)+','+(padT+innerH).toFixed(1)+' L'+xy[0].x.toFixed(1)+','+(padT+innerH).toFixed(1)+' Z';
+  const gridLines = [0,25,50,75,100].map(v=>{
+    const y = padT + innerH - (v/100*innerH);
+    return '<line x1="'+padL+'" y1="'+y+'" x2="'+(w-padR)+'" y2="'+y+'" stroke="#E1DFD6" stroke-width="1"/><text x="0" y="'+(y+3)+'" font-size="8" fill="#9A9A8E">'+v+'</text>';
+  }).join('');
+  const dots = xy.map(p=>'<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3" fill="#28565C"/>').join('');
+  const labelEvery = n<=6 ? 1 : Math.ceil(n/6);
+  const labels = xy.map((p,i)=> i%labelEvery===0 ? '<text x="'+p.x.toFixed(1)+'" y="'+(h-6)+'" font-size="8" fill="#9A9A8E" text-anchor="middle">'+p.label+'</text>' : '').join('');
+  return '<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto;display:block;">'+gridLines+
+    '<path d="'+areaD+'" fill="rgba(40,86,92,0.15)" stroke="none"/>'+
+    '<path d="'+pathD+'" fill="none" stroke="#28565C" stroke-width="2"/>'+dots+labels+'</svg>';
+}
+
+/* ======================= RENDER: ESTADISTICAS ======================= */
+let statStoreId = '';
+async function renderStats(){
+  if(!getApiUrl()){ renderConfig(); return; }
+  let html = `<div class="card stat-select"><label class="field-label">Tienda</label>
+    <select id="statSel"><option value="">Todas las tiendas</option>${storeOptionsHTML(statStoreId).replace('<option value="">Selecciona tienda…</option>','')}</select>
+  </div>` + periodFilterHTML();
+  document.getElementById('main').innerHTML = html + '<div class="empty">Cargando…</div>';
+
+  let allRaw;
+  try{ allRaw = await loadAllVisits(); }
+  catch(err){ document.getElementById('main').innerHTML = html + errorCard(err); return; }
+  const all = {};
+  Object.keys(allRaw).forEach(k=>{ all[k] = allRaw[k].filter(v=>inPeriod(v.date)); });
+
+  const barItems = STORES.map(s=>{
+    const vs = all[s.id];
+    const avg = vs.length ? Math.round(vs.reduce((a,v)=>a+v.scoreOverall,0)/vs.length) : null;
+    return { label: s.name.replace(/^(DIB|Bazhars)\s*/,''), value: avg, color: s.brand==='DIB'?'#28565C':'#B8412E' };
+  });
+
+  let trendHTML = '';
+  let visitsForFail = [];
+  if(statStoreId){
+    visitsForFail = all[statStoreId];
+    const sorted = visitsForFail.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
+    const points = sorted.map(v=>({ label: new Date(v.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit'}), value: v.scoreOverall }));
+    trendHTML = `<div class="card"><h2 class="section-title">Evolución</h2>${buildTrendSVG(points)}</div>`;
+  } else {
+    Object.values(all).forEach(vs=>{ visitsForFail = visitsForFail.concat(vs); });
+  }
+
+  const failCounts = {};
+  ALL_ITEMS.forEach(i=>failCounts[i.id]={text:i.text, cat:i.cat, bad:0, total:0});
+  visitsForFail.forEach(v=>{
+    Object.keys(v.responses).forEach(id=>{
+      const r = v.responses[id];
+      if(r.status==='ok'||r.status==='bad'){ failCounts[id].total++; if(r.status==='bad') failCounts[id].bad++; }
+    });
+  });
+  const failArr = Object.values(failCounts).filter(f=>f.total>0).sort((a,b)=>(b.bad/b.total)-(a.bad/a.total)).slice(0,6);
+  const failListHTML = failArr.length===0 ? '<li>Aún no hay datos suficientes.</li>'
+    : failArr.map(f=>'<li><span>'+f.text+'</span><span class="n">'+f.bad+'/'+f.total+' veces</span></li>').join('');
+
+  document.getElementById('main').innerHTML = html +
+    `<div class="card"><h2 class="section-title">Cumplimiento promedio por tienda</h2>${buildBarListHTML(barItems)}</div>` +
+    trendHTML +
+    `<div class="card"><h2 class="section-title">Puntos con más incumplimientos</h2><ul class="fail-list">${failListHTML}</ul></div>`;
+
+  document.getElementById('statSel').value = statStoreId;
+  document.getElementById('statSel').addEventListener('change', e=>{ statStoreId=e.target.value; renderStats(); });
+  bindPeriodBar(renderStats);
+}
+
+/* ======================= RENDER: RANKING ======================= */
+async function renderRanking(){
+  if(!getApiUrl()){ renderConfig(); return; }
+  document.getElementById('main').innerHTML = periodFilterHTML() + '<div class="empty">Cargando…</div>';
+  let allRaw;
+  try{ allRaw = await loadAllVisits(); }
+  catch(err){ document.getElementById('main').innerHTML = periodFilterHTML() + errorCard(err); bindPeriodBar(renderRanking); return; }
+  const all = {};
+  Object.keys(allRaw).forEach(k=>{ all[k] = allRaw[k].filter(v=>inPeriod(v.date)); });
+  const rows = STORES.map(s=>{
+    const vs = all[s.id];
+    const avg = vs.length ? Math.round(vs.reduce((a,v)=>a+v.scoreOverall,0)/vs.length) : null;
+    const last = vs.length ? vs.slice().sort((a,b)=>new Date(b.date)-new Date(a.date))[0] : null;
+    return {s, avg, count:vs.length, last};
+  }).sort((a,b)=>{ if(a.avg===null) return 1; if(b.avg===null) return -1; return b.avg-a.avg; });
+
+  let html = periodFilterHTML() + `<div class="card"><h2 class="section-title">Ranking de cumplimiento — ${periodLabel()}</h2>
+    <div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Tienda</th><th>Visitas</th><th>Promedio</th><th>Última visita</th></tr></thead><tbody>`;
+  rows.forEach(r=>{
+    const brandCls = r.s.brand==='DIB'?'':'bz';
+    const lastDt = r.last ? new Date(r.last.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
+    html += `<tr><td><span class="badgebrand ${brandCls}">${r.s.brand}</span>${r.s.name.replace(/^(DIB|Bazhars)\s*/,'')}</td>
+      <td>${r.count}</td><td class="sc">${r.avg===null?'—':r.avg+'%'}</td><td>${lastDt}</td></tr>`;
+  });
+  html += `</tbody></table></div></div>`;
+  document.getElementById('main').innerHTML = html;
+  bindPeriodBar(renderRanking);
+}
+
+/* ======================= EXPORTAR (CSV) ======================= */
+function csvEscape(v){
+  const s = (v===null||v===undefined) ? '' : String(v);
+  if(/[",\n;]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function downloadBlob(content, filename, mime){
+  const blob = new Blob([content], {type: mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+function fmtDateCSV(iso){
+  const d = new Date(iso);
+  const pad = n=> String(n).padStart(2,'0');
+  return pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear();
+}
+async function exportDetailCSV(){
+  const all = await loadAllVisits();
+  const rows = [['tienda','marca','fecha','auditor','categoria','item','critico','estado','comentario','tiene_foto','cumplimiento_visita_%']];
+  STORES.forEach(s=>{
+    (all[s.id]||[]).filter(v=>inPeriod(v.date)).forEach(v=>{
+      ALL_ITEMS.forEach(i=>{
+        const r = v.responses[i.id] || {};
+        const estadoTxt = r.status==='ok'?'Cumple':r.status==='bad'?'No cumple':r.status==='na'?'N/A':'Sin evaluar';
+        rows.push([s.name, s.brand, fmtDateCSV(v.date), v.auditor||'', i.cat, i.text, i.crit?'Si':'No', estadoTxt, r.comment||'', r.photo?'Si':'No', v.scoreOverall]);
+      });
+    });
+  });
+  const csv = '\uFEFF'+rows.map(r=>r.map(csvEscape).join(';')).join('\n');
+  downloadBlob(csv, 'checklist_detalle_'+new Date().toISOString().slice(0,10)+'.csv', 'text/csv;charset=utf-8');
+}
+async function exportSummaryCSV(){
+  const all = await loadAllVisits();
+  const rows = [['tienda','marca','fecha','auditor','cumplimiento_%','personal_%','presentacion_%','orden_%','limpieza_%','protocolo_atencion_%']];
+  STORES.forEach(s=>{
+    (all[s.id]||[]).filter(v=>inPeriod(v.date)).forEach(v=>{
+      rows.push([s.name, s.brand, fmtDateCSV(v.date), v.auditor||'', v.scoreOverall,
+        v.scoreByCat['Personal'], v.scoreByCat['Presentación'], v.scoreByCat['Orden'], v.scoreByCat['Limpieza'], v.scoreByCat['Protocolo de atención']]);
+    });
+  });
+  const csv = '\uFEFF'+rows.map(r=>r.map(csvEscape).join(';')).join('\n');
+  downloadBlob(csv, 'checklist_resumen_'+new Date().toISOString().slice(0,10)+'.csv', 'text/csv;charset=utf-8');
+}
+function renderExport(){
+  if(!getApiUrl()){ renderConfig(); return; }
+  const html = periodFilterHTML() + `
+  <div class="card">
+    <h2 class="section-title">Exportar registros</h2>
+    <div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;">Descarga la información de <b>${periodLabel()}</b> para Excel/pandas. Los datos crudos también están siempre disponibles en el Google Sheet del backend.</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="save-btn" id="btnCsvDetail" style="width:100%;">Descargar detalle (CSV, 1 fila por punto de checklist)</button>
+      <button class="save-btn" id="btnCsvSummary" style="width:100%;background:var(--teal);">Descargar resumen (CSV, 1 fila por visita)</button>
+    </div>
+  </div>`;
+  document.getElementById('main').innerHTML = html;
+  bindPeriodBar(renderExport);
+  document.getElementById('btnCsvDetail').addEventListener('click', exportDetailCSV);
+  document.getElementById('btnCsvSummary').addEventListener('click', exportSummaryCSV);
+}
+
+/* ======================= ROUTER ======================= */
+function render(){
+  if(state.tab==='nueva') renderNueva();
+  else if(state.tab==='historial') renderHistorial();
+  else if(state.tab==='stats') renderStats();
+  else if(state.tab==='ranking') renderRanking();
+  else if(state.tab==='export') renderExport();
+}
+render();
+</script>
+</body>
+</html>
