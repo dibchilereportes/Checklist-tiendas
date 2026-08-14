@@ -128,7 +128,8 @@
 
 <script>
 /* ======================= CONFIG (URL del backend Apps Script) ======================= */
-function getApiUrl(){ return localStorage.getItem('checklistApiUrl') || ''; }
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyt5gpC5HdvkkCIzBQ2EjeBdIdq35Ny57GrvvnBdl4Krb3-p48wmgBOL3skARgkHgnbGw/exec';
+   function getApiUrl(){ return localStorage.getItem('checklistApiUrl') || DEFAULT_API_URL; }
 function setApiUrl(u){ localStorage.setItem('checklistApiUrl', u); }
 
 /* ======================= DATA ======================= */
