@@ -1034,8 +1034,8 @@ function renderMatPedido(head, data){
       '<div style="margin-top:10px;"><label class="field-label">Motivo (opcional)</label><input type="text" id="matDesc"></div>'+
       '<button class="save-btn" id="addMatBtn" style="margin-top:10px;">Agregar al pedido de este mes</button></div>';
   }
-  const scope = auth.rol==='jefe_tienda' ? [auth.tienda_id] : scopedStores().map(function(s){return s.id;});
-  const misItems = data.rows.filter(function(r){ return r.mes===mes && scope.indexOf(r.tienda_id)>=0; });
+  // El backend ya filtra por rol (jefe_tienda solo ve su tienda); acá solo filtramos por mes.
+  const misItems = data.rows.filter(function(r){ return r.mes===mes; });
   html += '<div class="card"><h2 class="section-title">Pedido de '+mes+'</h2>';
   if(misItems.length===0){ html += '<div class="empty">Sin ítems aún.</div>'; }
   else{
@@ -1129,8 +1129,8 @@ function renderSolNueva(head, data){
       '<div style="margin-top:10px;"><label class="field-label">Urgencia</label><select id="solUrg"><option value="normal">Normal</option><option value="alta">Alta</option></select></div>'+
       '<button class="save-btn" id="addSolBtn" style="margin-top:10px;">Enviar solicitud</button></div>';
   }
-  const scope = auth.rol==='jefe_tienda' ? [auth.tienda_id] : scopedStores().map(function(s){return s.id;});
-  const mios = data.rows.filter(function(r){ return scope.indexOf(r.tienda_id)>=0; }).sort(function(a,b){return new Date(b.fecha_solicitud)-new Date(a.fecha_solicitud);});
+  // El backend ya filtra por rol.
+  const mios = data.rows.slice().sort(function(a,b){return new Date(b.fecha_solicitud)-new Date(a.fecha_solicitud);});
   html += '<div class="card"><h2 class="section-title">Mis solicitudes</h2>';
   if(mios.length===0){ html += '<div class="empty">Sin solicitudes aún.</div>'; }
   else{
