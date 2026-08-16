@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Control de Tienda — DIB / Bazhars</title>
+<title>Gestión de Tiendas — DIB / Bazhars</title>
 <style>
   :root{
     --bg:#F2F1EC; --surface:#FFFFFF; --ink:#20242A; --ink-soft:#5B6169; --line:#E1DFD6;
@@ -16,27 +16,33 @@
   *{box-sizing:border-box;}
   html{ height:100%; -webkit-text-size-adjust:100%; }
   body{ margin:0; min-height:100%; background:var(--bg); color:var(--ink); font-family:var(--font-body); -webkit-font-smoothing:antialiased; }
-  .app{max-width:920px;margin:0 auto;padding:0 0 calc(40px + env(safe-area-inset-bottom));}
-  header.top{ background:var(--teal-deep); color:#F2F1EC; padding:22px 20px 0 20px; border-bottom:4px solid var(--brick); }
+  .app{max-width:960px;margin:0 auto;padding:0 0 calc(40px + env(safe-area-inset-bottom));}
+  header.top{ background:var(--teal-deep); color:#F2F1EC; padding:18px 20px 0 20px; border-bottom:4px solid var(--brick); }
   .brandrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-  .brandrow h1{ font-family:var(--font-display); font-size:22px;letter-spacing:0.2px;margin:0 0 4px 0;font-weight:700; }
-  .brandrow .sub{font-size:12.5px;color:#B9C7C4;margin-bottom:16px;}
-  .gear{background:none;border:none;color:#C7D3D1;font-size:18px;cursor:pointer;padding:4px;}
-  nav.tabs{display:flex;gap:2px;margin-top:6px;flex-wrap:nowrap;}
-  nav.tabs button{ flex:1; background:transparent;border:none;color:#C7D3D1; padding:11px 4px;font-size:12px;font-weight:600;cursor:pointer;
+  .brandrow h1{ font-family:var(--font-display); font-size:19px;letter-spacing:0.2px;margin:0 0 2px 0;font-weight:700; }
+  .brandrow .sub{font-size:11.5px;color:#B9C7C4;}
+  .headerbtns{display:flex;gap:10px;align-items:center;}
+  .gear{background:none;border:none;color:#C7D3D1;font-size:17px;cursor:pointer;padding:4px;}
+  .whoami{font-size:11px;color:#B9C7C4;}
+  nav.modtabs{display:flex;gap:2px;margin-top:10px;flex-wrap:nowrap;overflow-x:auto;}
+  nav.modtabs button{ flex:1;min-width:64px; background:transparent;border:none;color:#C7D3D1; padding:10px 4px;font-size:11px;font-weight:600;cursor:pointer;
     border-bottom:3px solid transparent;font-family:var(--font-body); -webkit-tap-highlight-color:transparent;white-space:nowrap; }
-  nav.tabs button.active{color:#fff;border-bottom-color:var(--brick);}
-  @media (max-width:400px){ nav.tabs button{font-size:10px;padding:10px 2px;} }
-  main{padding:18px 16px 0;}
+  nav.modtabs button.active{color:#fff;border-bottom-color:var(--brick);}
+  nav.subtabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+  nav.subtabs button{ background:var(--surface);border:1px solid var(--line);color:var(--ink-soft);
+    padding:7px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body); }
+  nav.subtabs button.active{background:var(--teal-deep);color:#fff;border-color:var(--teal-deep);}
+  main{padding:16px 16px 0;}
   .card{ background:var(--surface);border:1px solid var(--line);border-radius:var(--radius); padding:16px;margin-bottom:14px; }
   label.field-label{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
-  select, input[type=text], input[type=date], input[type=url], textarea{
+  select, input[type=text], input[type=date], input[type=url], input[type=number], input[type=tel], textarea{
     width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;
     font-family:var(--font-body);font-size:16px;background:#FBFAF7;color:var(--ink);
   }
   textarea{resize:vertical;min-height:44px;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  @media (max-width:560px){.row2{grid-template-columns:1fr;}}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  @media (max-width:560px){.row2,.row3{grid-template-columns:1fr;}}
   optgroup{font-weight:600;}
   .cat-block{margin-bottom:16px;}
   .cat-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
@@ -44,15 +50,15 @@
   .cat-head h3{font-family:var(--font-display);font-size:14.5px;margin:0;letter-spacing:0.2px;}
   .cat-score{margin-left:auto;font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);}
   .item{border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px;background:#FCFBF9;}
-  .item-top{display:flex;align-items:flex-start;gap:8px;}
   .item-text{font-size:13.5px;line-height:1.35;flex:1;}
   .crit{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brick);margin-right:6px;vertical-align:middle;}
-  .status-btns{display:flex;gap:6px;margin-top:8px;}
-  .status-btns button{ flex:1;padding:11px 4px;min-height:40px;border-radius:7px;border:1px solid var(--line);background:#fff;
-    font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink-soft);-webkit-tap-highlight-color:transparent; }
-  .status-btns button.sel-ok{background:var(--moss);color:#fff;border-color:var(--moss);}
-  .status-btns button.sel-bad{background:var(--brick);color:#fff;border-color:var(--brick);}
-  .status-btns button.sel-na{background:var(--muted);color:#fff;border-color:var(--muted);}
+  .score-btns{display:flex;gap:5px;margin-top:8px;}
+  .score-btns button{ flex:1;padding:10px 2px;min-height:38px;border-radius:7px;border:1px solid var(--line);background:#fff;
+    font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink-soft);-webkit-tap-highlight-color:transparent; }
+  .score-btns button.selNA{background:var(--muted);color:#fff;border-color:var(--muted);}
+  .score-btns button.sel1,.score-btns button.sel2{background:var(--brick);color:#fff;border-color:var(--brick);}
+  .score-btns button.sel3{background:var(--amber);color:#fff;border-color:var(--amber);}
+  .score-btns button.sel4,.score-btns button.sel5{background:var(--moss);color:#fff;border-color:var(--moss);}
   .item-extra{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;}
   .item-extra input[type=text]{flex:1;min-width:120px;font-size:16px;padding:6px 8px;}
   .photo-btn{ font-size:11.5px;padding:6px 9px;border-radius:6px;border:1px dashed var(--ink-soft);
@@ -75,18 +81,22 @@
   .save-btn:disabled{background:var(--muted);cursor:not-allowed;}
   h2.section-title{font-family:var(--font-display);font-size:16px;margin:2px 0 12px;}
   .empty{color:var(--ink-soft);font-size:13.5px;padding:20px;text-align:center;}
-  .visit-row{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:#FCFBF9;cursor:pointer;}
-  .visit-row .mini-score{font-family:var(--font-mono);font-weight:600;font-size:15px;width:44px;text-align:center;}
-  .visit-row .meta{flex:1;}
-  .visit-row .meta .d{font-size:13px;font-weight:600;}
-  .visit-row .meta .s{font-size:11.5px;color:var(--ink-soft);}
+  .row-item{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:#FCFBF9;}
+  .row-item .meta{flex:1;}
+  .row-item .meta .d{font-size:13px;font-weight:600;}
+  .row-item .meta .s{font-size:11.5px;color:var(--ink-soft);}
   .del-btn{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;}
+  .pill{font-size:10.5px;padding:3px 9px;border-radius:12px;font-weight:700;white-space:nowrap;}
+  .pill.pendiente{background:#EFE6D4;color:var(--amber);}
+  .pill.en_proceso{background:#DCE8F0;color:#2A6F8E;}
+  .pill.hecha,.pill.instalada,.pill.aprobada,.pill.enviada,.pill.resuelta,.pill.consolidada{background:#E4F0E9;color:var(--moss);}
+  .pill.rechazada{background:#FCEBE8;color:var(--brick);}
+  .pill.atrasada{background:#FCEBE8;color:var(--brick);}
   .detail-modal{position:fixed;inset:0;background:rgba(20,24,26,0.55);display:flex;align-items:flex-end;justify-content:center;z-index:50;}
   .detail-sheet{background:var(--surface);width:100%;max-width:920px;max-height:88vh;overflow-y:auto;border-radius:14px 14px 0 0;padding:18px;}
   .detail-sheet .close-x{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink-soft);}
   .detail-item{border-bottom:1px solid var(--line);padding:9px 0;}
   .detail-item .st{font-size:11px;font-weight:700;text-transform:uppercase;}
-  .detail-item .st.ok{color:var(--moss);} .detail-item .st.bad{color:var(--brick);} .detail-item .st.na{color:var(--muted);}
   .detail-item img{max-width:150px;border-radius:6px;margin-top:6px;display:block;}
   .detail-item .cm{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
   .stat-select{margin-bottom:14px;}
@@ -103,6 +113,14 @@
   .status-line{font-size:12px;padding:8px 10px;border-radius:7px;margin-bottom:10px;}
   .status-line.ok{background:#E4F0E9;color:var(--moss);}
   .status-line.bad{background:#FCEBE8;color:var(--brick);}
+  .storechk{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line);font-size:13px;}
+  .storechk input{width:auto;}
+  .pinpad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;max-width:280px;margin:16px auto 0;}
+  .pinpad button{padding:16px;font-size:20px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;}
+  .pindots{display:flex;justify-content:center;gap:10px;margin:18px 0;}
+  .pindots span{width:14px;height:14px;border-radius:50%;border:2px solid var(--teal);}
+  .pindots span.filled{background:var(--teal);}
+  .logout-link{font-size:11px;color:#B9C7C4;text-decoration:underline;background:none;border:none;cursor:pointer;padding:0;}
 </style>
 </head>
 <body>
@@ -110,29 +128,30 @@
   <header class="top">
     <div class="brandrow">
       <div>
-        <h1>Control de Tienda</h1>
-        <div class="sub">Checklist online — DIB / Bazhars</div>
+        <h1>Gestión de Tiendas</h1>
+        <div class="sub" id="subLabel">DIB / Bazhars</div>
       </div>
-      <button class="gear" id="gearBtn" title="Configuración">⚙</button>
+      <div class="headerbtns">
+        <span class="whoami" id="whoami"></span>
+        <button class="gear" id="gearBtn" title="Configuración">⚙</button>
+      </div>
     </div>
-    <nav class="tabs" id="navTabs">
-      <button data-tab="nueva" class="active">Visita</button>
-      <button data-tab="historial">Historial</button>
-      <button data-tab="stats">Stats</button>
-      <button data-tab="ranking">Ranking</button>
-      <button data-tab="export">Exportar</button>
-    </nav>
+    <nav class="modtabs" id="modTabs"></nav>
   </header>
   <main id="main"></main>
 </div>
 
 <script>
-/* ======================= CONFIG (URL del backend Apps Script) ======================= */
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyt5gpC5HdvkkCIzBQ2EjeBdIdq35Ny57GrvvnBdl4Krb3-p48wmgBOL3skARgkHgnbGw/exec';
-   function getApiUrl(){ return localStorage.getItem('checklistApiUrl') || DEFAULT_API_URL; }
+/* ======================= CONFIG ======================= */
+function getApiUrl(){ return localStorage.getItem('checklistApiUrl') || DEFAULT_API_URL || ''; }
 function setApiUrl(u){ localStorage.setItem('checklistApiUrl', u); }
+const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyt5gpC5HdvkkCIzBQ2EjeBdIdq35Ny57GrvvnBdl4Krb3-p48wmgBOL3skARgkHgnbGw/exec'; // pega aquí la URL de Apps Script para que quede fija para todos
 
-/* ======================= DATA ======================= */
+function getAuth(){ try{ return JSON.parse(localStorage.getItem('checklistAuth')||'null'); }catch(e){ return null; } }
+function setAuth(a){ localStorage.setItem('checklistAuth', JSON.stringify(a)); }
+function clearAuth(){ localStorage.removeItem('checklistAuth'); }
+
+/* ======================= DATA MAESTRA ======================= */
 const STORES = [
   {id:'dib_outlet_el_salto', brand:'DIB', name:'DIB Outlet El Salto'},
   {id:'dib_cerrillos_plaza_oeste', brand:'DIB', name:'DIB Cerrillos Plaza Oeste'},
@@ -156,6 +175,7 @@ const STORES = [
   {id:'bz_montemar', brand:'BAZHARS', name:'Bazhars Montemar'},
   {id:'bz_temuco', brand:'BAZHARS', name:'Bazhars Temuco'},
 ];
+function storeName(id){ const s=STORES.find(function(x){return x.id===id;}); return s? s.name : id; }
 const CHECKLIST = [
   {cat:'Personal', items:[
     {id:'p1', text:'Dotación completa presente según turno planificado', crit:false},
@@ -183,98 +203,49 @@ const CHECKLIST = [
     {id:'a3', text:'Cierre de venta y despedida conforme a protocolo', crit:false},
   ]},
 ];
-const ALL_ITEMS = CHECKLIST.flatMap(c => c.items.map(i => ({...i, cat:c.cat})));
+const ALL_ITEMS = CHECKLIST.flatMap(function(c){ return c.items.map(function(i){ return Object.assign({},i,{cat:c.cat}); }); });
 
-/* ======================= STATE ======================= */
-let state = {
-  tab: 'nueva',
-  draft: { storeId:'', auditor:'', responses:{} },
-  period: { mode:'all', from:'', to:'' },
-};
-ALL_ITEMS.forEach(i => state.draft.responses[i.id] = {status:null, comment:'', photo:null});
-let rowsCache = null;
+/* ======================= ESTADO GLOBAL ======================= */
+let state = { modTab:'auditorias', subTab:{ auditorias:'nueva', carteleria:'mitienda', tareas:'mis', materiales:'pedido', solicitudes:'nueva' } };
+let draft = { storeId:'', auditor:'', responses:{} };
+ALL_ITEMS.forEach(function(i){ draft.responses[i.id] = {puntaje:null, comment:'', photo:null}; });
+let period = { mode:'all', from:'', to:'' };
+let cache = {};
 
 /* ======================= API ======================= */
 async function apiGet(qs){
   const url = getApiUrl();
   if(!url) throw new Error('NO_CONFIG');
-  const res = await fetch(url + (qs?('?'+qs):''));
+  const auth = getAuth();
+  const pinQs = auth ? '&pin='+encodeURIComponent(auth.pin) : '';
+  const res = await fetch(url + '?' + qs + pinQs);
   if(!res.ok) throw new Error('HTTP '+res.status);
   return res.json();
 }
 async function apiPost(payload){
   const url = getApiUrl();
   if(!url) throw new Error('NO_CONFIG');
-  const res = await fetch(url, {
-    method:'POST',
-    headers: {'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify(payload)
-  });
+  const auth = getAuth();
+  payload.pin = auth ? auth.pin : '';
+  const res = await fetch(url, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
   if(!res.ok) throw new Error('HTTP '+res.status);
   return res.json();
 }
-function estadoToStatus(e){ return e==='ok'||e==='bad'||e==='na' ? e : null; }
+function escAttr(s){ return (s||'').toString().replace(/"/g,'&quot;'); }
+function errorCard(err){ return '<div class="card"><div class="status-line bad">No se pudo cargar: '+err.message+'</div></div>'; }
+function currentMes(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 
-function groupRows(rows){
-  const byVisit = {};
-  rows.forEach(r=>{
-    if(!byVisit[r.visit_id]){
-      byVisit[r.visit_id] = { id:r.visit_id, storeId:r.tienda_id, date:r.fecha, auditor:r.auditor, responses:{} };
-    }
-    byVisit[r.visit_id].responses[r.item_id] = { status: estadoToStatus(r.estado), comment:r.comentario||'', photo:r.foto_url||null };
-  });
-  const result = {};
-  STORES.forEach(s=>result[s.id]=[]);
-  Object.keys(byVisit).forEach(vid=>{
-    const v = byVisit[vid];
-    const score = computeScore(v.responses);
-    v.scoreOverall = score.overall;
-    v.scoreByCat = score.byCat;
-    if(!result[v.storeId]) result[v.storeId] = [];
-    result[v.storeId].push(v);
-  });
-  return result;
-}
-
-async function loadAllVisits(force){
-  if(rowsCache && !force) return groupRows(rowsCache);
-  const json = await apiGet('action=list');
-  if(!json.ok) throw new Error(json.error||'Error al leer datos');
-  rowsCache = json.rows;
-  return groupRows(rowsCache);
-}
-async function loadVisits(storeId){
-  const all = await loadAllVisits();
-  return all[storeId] || [];
-}
-
-/* ======================= SCORING ======================= */
-function computeScore(responses){
-  let ok=0, tot=0;
-  const byCat = {};
-  CHECKLIST.forEach(c=>{
-    let cok=0, ctot=0;
-    c.items.forEach(i=>{
-      const st = responses[i.id] ? responses[i.id].status : null;
-      if(st==='ok'||st==='bad'){ ctot++; tot++; if(st==='ok'){cok++; ok++;} }
-    });
-    byCat[c.cat] = ctot ? Math.round(cok/ctot*100) : null;
-  });
-  return { overall: tot? Math.round(ok/tot*100) : null, byCat };
-}
-
-/* ======================= COMPRESION DE FOTOS ======================= */
+/* ======================= FOTOS ======================= */
 function fileToCompressedDataURL(file){
-  return new Promise((resolve,reject)=>{
+  return new Promise(function(resolve,reject){
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = function(e){
       const img = new Image();
-      img.onload = () => {
+      img.onload = function(){
         const maxW = 480;
         const scale = Math.min(1, maxW/img.width);
         const canvas = document.createElement('canvas');
-        canvas.width = img.width*scale;
-        canvas.height = img.height*scale;
+        canvas.width = img.width*scale; canvas.height = img.height*scale;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img,0,0,canvas.width,canvas.height);
         resolve(canvas.toDataURL('image/jpeg', 0.55));
@@ -286,515 +257,908 @@ function fileToCompressedDataURL(file){
     reader.readAsDataURL(file);
   });
 }
-
-/* ======================= TABS ======================= */
-function setTab(t){
-  state.tab = t;
-  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===t));
-  render();
+function photoField(id, currentUrl){
+  return '<button class="photo-btn '+(currentUrl?'has':'')+'" data-photobtn="'+id+'">'+(currentUrl?'Foto ✓':'📷 Adjuntar')+'</button>'+
+    '<input type="file" accept="image/*" data-photoinput="'+id+'" style="display:none">'+
+    (currentUrl?'<span class="thumb-wrap"><img class="thumb" src="'+currentUrl+'"><button class="thumb-x" data-photodel="'+id+'">×</button></span>':'');
 }
-document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click', ()=>setTab(b.dataset.tab)));
-document.getElementById('gearBtn').addEventListener('click', renderConfig);
-
-function storeOptionsHTML(selected){
-  const dib = STORES.filter(s=>s.brand==='DIB');
-  const bz = STORES.filter(s=>s.brand==='BAZHARS');
-  const opt = s => `<option value="${s.id}" ${s.id===selected?'selected':''}>${s.name}</option>`;
-  return `<option value="">Selecciona tienda…</option>
-    <optgroup label="DIB">${dib.map(opt).join('')}</optgroup>
-    <optgroup label="BAZHARS">${bz.map(opt).join('')}</optgroup>`;
+function bindPhotoField(container, id, onChange){
+  const btn = container.querySelector('[data-photobtn="'+id+'"]');
+  const inp = container.querySelector('[data-photoinput="'+id+'"]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){ inp.click(); });
+  inp.addEventListener('change', async function(e){
+    const f = e.target.files[0]; if(!f) return;
+    const dataUrl = await fileToCompressedDataURL(f);
+    onChange(dataUrl);
+  });
+  const delBtn = container.querySelector('[data-photodel="'+id+'"]');
+  if(delBtn) delBtn.addEventListener('click', function(e){ e.stopPropagation(); onChange(null); });
 }
-function escAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
 
-/* ======================= FILTRO DE PERIODO ======================= */
-function periodFilterHTML(){
-  const custom = state.period.mode==='custom';
-  return `<div class="card">
-    <label class="field-label">Periodo</label>
-    <select id="periodMode" style="margin-bottom:${custom?'10px':'0'};">
-      <option value="all" ${state.period.mode==='all'?'selected':''}>Todo el periodo</option>
-      <option value="thisMonth" ${state.period.mode==='thisMonth'?'selected':''}>Este mes</option>
-      <option value="lastMonth" ${state.period.mode==='lastMonth'?'selected':''}>Mes anterior</option>
-      <option value="last30" ${state.period.mode==='last30'?'selected':''}>Últimos 30 días</option>
-      <option value="custom" ${custom?'selected':''}>Rango personalizado</option>
-    </select>
-    ${custom?`<div class="row2">
-      <div><label class="field-label">Desde</label><input type="date" id="periodFrom" value="${state.period.from||''}"></div>
-      <div><label class="field-label">Hasta</label><input type="date" id="periodTo" value="${state.period.to||''}"></div>
-    </div>`:''}
-  </div>`;
+/* ======================= LOGIN ======================= */
+let pinBuffer = '';
+function renderLogin(){
+  document.getElementById('modTabs').innerHTML = '';
+  document.getElementById('whoami').textContent = '';
+  pinBuffer = '';
+  const html = '<div class="card" style="text-align:center;max-width:340px;margin:20px auto;">'+
+    '<h2 class="section-title">Ingresa tu PIN</h2>'+
+    '<div class="pindots" id="pindots"></div>'+
+    '<div class="pinpad">'+
+      [1,2,3,4,5,6,7,8,9].map(function(n){ return '<button data-num="'+n+'">'+n+'</button>'; }).join('')+
+      '<button data-num="del">⌫</button><button data-num="0">0</button><button data-num="ok">OK</button>'+
+    '</div>'+
+    '<div id="loginStatus" style="margin-top:10px;"></div>'+
+  '</div>';
+  document.getElementById('main').innerHTML = html;
+  renderPinDots();
+  document.querySelectorAll('[data-num]').forEach(function(b){
+    b.addEventListener('click', function(){
+      const n = b.dataset.num;
+      if(n==='del'){ pinBuffer = pinBuffer.slice(0,-1); }
+      else if(n==='ok'){ tryLogin(); return; }
+      else if(pinBuffer.length<6){ pinBuffer += n; }
+      renderPinDots();
+    });
+  });
 }
-function applyPeriodMode(mode){
-  const today = new Date();
-  const pad = n=>String(n).padStart(2,'0');
-  const iso = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-  if(mode==='all'){ state.period = {mode:'all', from:'', to:''}; }
-  else if(mode==='thisMonth'){
-    const first = new Date(today.getFullYear(), today.getMonth(), 1);
-    state.period = {mode:mode, from: iso(first), to: iso(today)};
-  } else if(mode==='lastMonth'){
-    const first = new Date(today.getFullYear(), today.getMonth()-1, 1);
-    const last = new Date(today.getFullYear(), today.getMonth(), 0);
-    state.period = {mode:mode, from: iso(first), to: iso(last)};
-  } else if(mode==='last30'){
-    const from = new Date(today); from.setDate(from.getDate()-30);
-    state.period = {mode:mode, from: iso(from), to: iso(today)};
-  } else if(mode==='custom'){
-    state.period = {mode:mode, from: state.period.from||iso(today), to: state.period.to||iso(today)};
+function renderPinDots(){
+  const max = Math.max(4, pinBuffer.length);
+  document.getElementById('pindots').innerHTML = Array.from({length:Math.max(pinBuffer.length,4)}).map(function(_,i){
+    return '<span class="'+(i<pinBuffer.length?'filled':'')+'"></span>';
+  }).join('');
+}
+async function tryLogin(){
+  const statusEl = document.getElementById('loginStatus');
+  statusEl.innerHTML = '<div class="status-line">Validando…</div>';
+  try{
+    const url = getApiUrl();
+    const res = await fetch(url + '?action=login&pin=' + encodeURIComponent(pinBuffer));
+    const json = await res.json();
+    if(!json.ok){ statusEl.innerHTML = '<div class="status-line bad">PIN no reconocido.</div>'; pinBuffer=''; renderPinDots(); return; }
+    setAuth({ pin: pinBuffer, rol: json.rol, tienda_id: json.tienda_id, nombre: json.nombre });
+    state.modTab = 'auditorias';
+    renderShell();
+  }catch(err){
+    statusEl.innerHTML = '<div class="status-line bad">Error de conexión: '+err.message+'</div>';
   }
 }
-function bindPeriodBar(onChange){
-  const sel = document.getElementById('periodMode');
-  if(sel) sel.addEventListener('change', e=>{ applyPeriodMode(e.target.value); onChange(); });
-  const cFrom = document.getElementById('periodFrom');
-  const cTo = document.getElementById('periodTo');
-  if(cFrom) cFrom.addEventListener('change', e=>{ state.period.from = e.target.value; onChange(); });
-  if(cTo) cTo.addEventListener('change', e=>{ state.period.to = e.target.value; onChange(); });
+
+/* ======================= SHELL / NAV ======================= */
+const MODULES = [
+  {id:'auditorias', label:'Auditorías'},
+  {id:'carteleria', label:'Cartelería'},
+  {id:'tareas', label:'Tareas'},
+  {id:'materiales', label:'Materiales'},
+  {id:'solicitudes', label:'Solicitudes'},
+];
+function renderShell(){
+  const auth = getAuth();
+  if(!getApiUrl()){ renderConfig(); return; }
+  if(!auth){ renderLogin(); return; }
+  document.getElementById('whoami').innerHTML = (auth.nombre||auth.rol) + ' <button class="logout-link" id="logoutBtn">salir</button>';
+  document.getElementById('subLabel').textContent = auth.rol==='jefe_tienda' ? storeName(auth.tienda_id) : (auth.rol==='supervisor'?'Supervisor':'Administrador');
+  document.getElementById('modTabs').innerHTML = MODULES.map(function(m){
+    return '<button data-mod="'+m.id+'" class="'+(state.modTab===m.id?'active':'')+'">'+m.label+'</button>';
+  }).join('');
+  document.querySelectorAll('[data-mod]').forEach(function(b){
+    b.addEventListener('click', function(){ state.modTab = b.dataset.mod; renderShell(); });
+  });
+  document.getElementById('logoutBtn').addEventListener('click', function(){ clearAuth(); renderShell(); });
+  renderModule();
 }
-function inPeriod(iso){
-  if(state.period.mode==='all') return true;
-  if(!state.period.from || !state.period.to) return true;
-  const d = new Date(iso);
-  const df = new Date(state.period.from+'T00:00:00');
-  const dt = new Date(state.period.to+'T23:59:59');
-  return d>=df && d<=dt;
+function renderModule(){
+  if(state.modTab==='auditorias') renderAuditorias();
+  else if(state.modTab==='carteleria') renderCarteleria();
+  else if(state.modTab==='tareas') renderTareas();
+  else if(state.modTab==='materiales') renderMateriales();
+  else if(state.modTab==='solicitudes') renderSolicitudesAdmin();
 }
-function periodLabel(){
-  if(state.period.mode==='all') return 'todo el periodo';
-  return 'del '+ (state.period.from||'') +' al '+ (state.period.to||'');
+function subtabsHTML(tabs, active){
+  return '<nav class="subtabs">'+tabs.map(function(t){
+    return '<button data-sub="'+t.id+'" class="'+(active===t.id?'active':'')+'">'+t.label+'</button>';
+  }).join('')+'</nav>';
+}
+function bindSubtabs(moduleKey, onChange){
+  document.querySelectorAll('[data-sub]').forEach(function(b){
+    b.addEventListener('click', function(){ state.subTab[moduleKey] = b.dataset.sub; onChange(); });
+  });
 }
 
-/* ======================= RENDER: CONFIGURACION ======================= */
+document.getElementById('gearBtn').addEventListener('click', renderConfig);
+
+/* ======================= CONFIGURACION ======================= */
 function renderConfig(){
   const current = getApiUrl();
-  const html = `<div class="card">
-    <h2 class="section-title">Configuración — backend Google</h2>
-    <div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;">
-      Pega aquí la URL de tu Apps Script (Implementar &gt; Nueva implementación &gt; Aplicación web). Se guarda solo en este navegador.
-    </div>
-    <label class="field-label">URL del backend</label>
-    <input type="url" id="apiUrlInp" placeholder="https://script.google.com/macros/s/AKfycb.../exec" value="${escAttr(current)}">
-    <div style="margin-top:10px;display:flex;gap:8px;">
-      <button class="save-btn" id="testBtn" style="flex:1;">Probar conexión</button>
-      <button class="save-btn" id="saveCfgBtn" style="flex:1;background:var(--teal);">Guardar</button>
-    </div>
-    <div id="cfgStatus" style="margin-top:10px;"></div>
-  </div>`;
+  const html = '<div class="card"><h2 class="section-title">Configuración — backend Google</h2>'+
+    '<div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;">URL de tu Apps Script (Implementar &gt; Aplicación web).</div>'+
+    '<label class="field-label">URL del backend</label>'+
+    '<input type="url" id="apiUrlInp" placeholder="https://script.google.com/macros/s/AKfycb.../exec" value="'+escAttr(current)+'">'+
+    '<div style="margin-top:10px;display:flex;gap:8px;">'+
+      '<button class="save-btn" id="testBtn" style="flex:1;">Probar conexión</button>'+
+      '<button class="save-btn" id="saveCfgBtn" style="flex:1;background:var(--teal);">Guardar</button>'+
+    '</div><div id="cfgStatus" style="margin-top:10px;"></div></div>';
+  document.getElementById('modTabs').innerHTML = '';
   document.getElementById('main').innerHTML = html;
-  document.getElementById('testBtn').addEventListener('click', async ()=>{
+  document.getElementById('testBtn').addEventListener('click', async function(){
     const val = document.getElementById('apiUrlInp').value.trim();
     const statusEl = document.getElementById('cfgStatus');
     statusEl.innerHTML = '<div class="status-line">Probando…</div>';
     try{
       const res = await fetch(val + '?action=ping');
       const json = await res.json();
-      statusEl.innerHTML = json.ok ? '<div class="status-line ok">Conexión OK — backend activo.</div>' : '<div class="status-line bad">Respondió pero con error: '+(json.error||'desconocido')+'</div>';
-    }catch(err){
-      statusEl.innerHTML = '<div class="status-line bad">No se pudo conectar: '+err.message+'</div>';
-    }
+      statusEl.innerHTML = json.ok ? '<div class="status-line ok">Conexión OK.</div>' : '<div class="status-line bad">Error: '+(json.error||'')+'</div>';
+    }catch(err){ statusEl.innerHTML = '<div class="status-line bad">No se pudo conectar: '+err.message+'</div>'; }
   });
-  document.getElementById('saveCfgBtn').addEventListener('click', ()=>{
-    const val = document.getElementById('apiUrlInp').value.trim();
-    setApiUrl(val);
-    rowsCache = null;
+  document.getElementById('saveCfgBtn').addEventListener('click', function(){
+    setApiUrl(document.getElementById('apiUrlInp').value.trim());
+    cache = {};
     document.getElementById('cfgStatus').innerHTML = '<div class="status-line ok">Guardado.</div>';
-    setTimeout(()=>{ state.tab='nueva'; document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab==='nueva')); render(); }, 500);
+    setTimeout(renderShell, 400);
   });
 }
 
-/* ======================= RENDER: NUEVA VISITA ======================= */
-function renderNueva(){
-  if(!getApiUrl()){ renderConfig(); return; }
-  const d = state.draft;
-  const score = computeScore(d.responses);
-  const today = new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
-
-  let html = `<div class="card">
-    <div class="row2">
-      <div><label class="field-label">Tienda</label><select id="storeSel">${storeOptionsHTML(d.storeId)}</select></div>
-      <div><label class="field-label">Auditor / Responsable</label><input type="text" id="auditorInp" value="${escAttr(d.auditor)}" placeholder="Nombre (opcional)"></div>
-    </div>
-    <div style="margin-top:8px;font-size:12px;color:var(--ink-soft)">Fecha visita: ${today}</div>
-  </div>`;
-
-  if(!d.storeId){
-    html += `<div class="empty">Selecciona una tienda para iniciar el checklist.</div>`;
-    document.getElementById('main').innerHTML = html;
-    bindNuevaTop();
-    return;
-  }
-
-  CHECKLIST.forEach(cat=>{
-    let catOk=0, catTot=0;
-    cat.items.forEach(i=>{ const st=d.responses[i.id].status; if(st==='ok'||st==='bad'){catTot++; if(st==='ok')catOk++;} });
-    const catPct = catTot? Math.round(catOk/catTot*100)+'%' : '—';
-    html += `<div class="cat-block"><div class="cat-head"><span class="dot"></span><h3>${cat.cat}</h3><span class="cat-score">${catPct}</span></div>`;
-    cat.items.forEach(i=>{
-      const r = d.responses[i.id];
-      const needsPhoto = i.crit && r.status==='bad' && !r.photo;
-      html += `<div class="item" data-item="${i.id}">
-        <div class="item-top"><div class="item-text">${i.crit?'<span class="crit" title="Punto crítico"></span>':''}${i.text}</div></div>
-        <div class="status-btns">
-          <button data-st="ok" class="${r.status==='ok'?'sel-ok':''}">Cumple</button>
-          <button data-st="bad" class="${r.status==='bad'?'sel-bad':''}">No cumple</button>
-          <button data-st="na" class="${r.status==='na'?'sel-na':''}">N/A</button>
-        </div>
-        <div class="item-extra">
-          <input type="text" class="cmInp" placeholder="Comentario (opcional)" value="${escAttr(r.comment)}">
-          <button class="photo-btn ${r.photo?'has':''}" data-act="photo">${r.photo?'Foto ✓':'📷 Adjuntar'}</button>
-          <input type="file" accept="image/*" class="fileInp" style="display:none">
-          ${r.photo?`<span class="thumb-wrap"><img class="thumb" src="${r.photo}"><button class="thumb-x" data-act="delphoto">×</button></span>`:''}
-        </div>
-        ${needsPhoto?'<div class="req-photo">Punto crítico sin cumplir — se recomienda adjuntar foto de respaldo</div>':''}
-      </div>`;
+/* ======================= SCORING (1-5) ======================= */
+function computeScore(responses){
+  let sum=0, cnt=0; const byCat={};
+  CHECKLIST.forEach(function(c){
+    let csum=0, ccnt=0;
+    c.items.forEach(function(i){
+      const p = responses[i.id] ? responses[i.id].puntaje : null;
+      if(p){ csum+=p; ccnt++; sum+=p; cnt++; }
     });
-    html += `</div>`;
+    byCat[c.cat] = ccnt ? Math.round(csum/ccnt/5*100) : null;
   });
-
-  const badgeClass = score.overall===null?'':(score.overall>=90?'':score.overall>=70?'warn':'bad');
-  html += `<div class="footer-bar">
-    <div class="score-badge ${badgeClass}">${score.overall===null?'—':score.overall+'%'}</div>
-    <button class="save-btn" id="saveBtn" ${score.overall===null?'disabled':''}>Guardar visita</button>
-  </div>`;
-
-  document.getElementById('main').innerHTML = html;
-  bindNuevaTop();
-  bindNuevaItems();
-  const saveBtnEl = document.getElementById('saveBtn');
-  if(saveBtnEl) saveBtnEl.addEventListener('click', saveVisit);
+  return { overall: cnt ? Math.round(sum/cnt/5*100) : null, byCat: byCat };
 }
-function bindNuevaTop(){
-  const sel = document.getElementById('storeSel');
-  if(sel) sel.addEventListener('change', e=>{ state.draft.storeId = e.target.value; render(); });
-  const auditorEl = document.getElementById('auditorInp');
-  if(auditorEl) auditorEl.addEventListener('input', e=>{ state.draft.auditor = e.target.value; });
-}
-function bindNuevaItems(){
-  document.querySelectorAll('.item').forEach(itemEl=>{
-    const id = itemEl.dataset.item;
-    itemEl.querySelectorAll('.status-btns button').forEach(btn=>{
-      btn.addEventListener('click', ()=>{ state.draft.responses[id].status = btn.dataset.st; render(); });
-    });
-    itemEl.querySelector('.cmInp').addEventListener('input', e=>{ state.draft.responses[id].comment = e.target.value; });
-    const photoBtn = itemEl.querySelector('[data-act="photo"]');
-    const fileInp = itemEl.querySelector('.fileInp');
-    photoBtn.addEventListener('click', ()=> fileInp.click());
-    fileInp.addEventListener('change', async e=>{
-      const f = e.target.files[0];
-      if(!f) return;
-      const dataUrl = await fileToCompressedDataURL(f);
-      state.draft.responses[id].photo = dataUrl;
-      render();
-    });
-    const delBtn = itemEl.querySelector('[data-act="delphoto"]');
-    if(delBtn) delBtn.addEventListener('click', e=>{ e.stopPropagation(); state.draft.responses[id].photo = null; render(); });
+function estadoToPuntaje(v){ const n = Number(v); return (n>=1 && n<=5) ? n : null; }
+function groupVisitRows(rows){
+  const byVisit = {};
+  rows.forEach(function(r){
+    if(!byVisit[r.visit_id]) byVisit[r.visit_id] = { id:r.visit_id, storeId:r.tienda_id, date:r.fecha, auditor:r.auditor, responses:{} };
+    byVisit[r.visit_id].responses[r.item_id] = { puntaje: estadoToPuntaje(r.puntaje), comment:r.comentario||'', photo:r.foto_url||null };
   });
-}
-async function saveVisit(){
-  const d = state.draft;
-  const score = computeScore(d.responses);
-  const store = STORES.find(s=>s.id===d.storeId);
-  const visitId = 'v'+Date.now();
-  const fechaISO = new Date().toISOString().slice(0,10);
-  const rows = ALL_ITEMS.map(i=>{
-    const r = d.responses[i.id];
-    return {
-      visit_id: visitId, tienda_id: d.storeId, tienda_nombre: store.name, marca: store.brand,
-      auditor: d.auditor||'', fecha: fechaISO, categoria: i.cat, item_id: i.id, item_texto: i.text,
-      critico: i.crit?'Si':'No', estado: r.status||'', comentario: r.comment||'', foto: r.photo||null,
-      cumplimiento_visita: score.overall
-    };
+  const result = {}; STORES.forEach(function(s){ result[s.id]=[]; });
+  Object.keys(byVisit).forEach(function(vid){
+    const v = byVisit[vid];
+    const score = computeScore(v.responses);
+    v.scoreOverall = score.overall; v.scoreByCat = score.byCat;
+    if(!result[v.storeId]) result[v.storeId]=[];
+    result[v.storeId].push(v);
   });
-  const btn = document.getElementById('saveBtn');
-  if(btn){ btn.disabled=true; btn.textContent='Guardando…'; }
-  try{
-    const res = await apiPost({ rows });
-    if(!res.ok) throw new Error(res.error||'Error desconocido');
-    rowsCache = null;
-    state.draft = { storeId:'', auditor:'', responses:{} };
-    ALL_ITEMS.forEach(i => state.draft.responses[i.id] = {status:null, comment:'', photo:null});
-    alert('Visita guardada — '+store.name+' · Cumplimiento '+score.overall+'%');
-    setTab('historial');
-  }catch(err){
-    alert('No se pudo guardar: '+err.message+'\n\nRevisa la URL del backend en Configuración (⚙).');
-    if(btn){ btn.disabled=false; btn.textContent='Guardar visita'; }
-  }
+  return result;
+}
+async function loadAllVisits(force){
+  if(cache.visitas && !force) return groupVisitRows(cache.visitas);
+  const json = await apiGet('action=list_visitas');
+  if(!json.ok) throw new Error(json.error||'Error al leer visitas');
+  cache.visitas = json.rows;
+  return groupVisitRows(cache.visitas);
 }
 
-/* ======================= RENDER: HISTORIAL ======================= */
-let histStoreId = '';
-async function renderHistorial(){
-  if(!getApiUrl()){ renderConfig(); return; }
-  let html = `<div class="card"><label class="field-label">Tienda</label><select id="histSel">${storeOptionsHTML(histStoreId)}</select></div>`;
-  if(!histStoreId){
-    html += `<div class="empty">Selecciona una tienda para ver su historial de visitas.</div>`;
-    document.getElementById('main').innerHTML = html;
-    document.getElementById('histSel').addEventListener('change', e=>{ histStoreId=e.target.value; renderHistorial(); });
-    return;
-  }
-  document.getElementById('main').innerHTML = html + '<div class="empty">Cargando…</div>';
-  let visits;
-  try{ visits = (await loadVisits(histStoreId)).filter(v=>inPeriod(v.date)).sort((a,b)=> new Date(b.date)-new Date(a.date)); }
-  catch(err){ document.getElementById('main').innerHTML = html + errorCard(err); return; }
-
-  html += periodFilterHTML();
-  if(visits.length===0){
-    html += `<div class="empty">Sin visitas registradas en ${periodLabel()}.</div>`;
-  }else{
-    visits.forEach(v=>{
-      const dt = new Date(v.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
-      const color = v.scoreOverall>=90?'':(v.scoreOverall>=70?'color:var(--amber)':'color:var(--brick)');
-      html += `<div class="visit-row" data-vid="${v.id}">
-        <div class="mini-score" style="${color}">${v.scoreOverall}%</div>
-        <div class="meta"><div class="d">${dt}</div><div class="s">${v.auditor||'Sin auditor registrado'}</div></div>
-        <button class="del-btn" data-del="${v.id}">🗑</button>
-      </div>`;
-    });
-  }
-  document.getElementById('main').innerHTML = html;
-  document.getElementById('histSel').addEventListener('change', e=>{ histStoreId=e.target.value; renderHistorial(); });
-  bindPeriodBar(renderHistorial);
-  document.querySelectorAll('.visit-row').forEach(row=>{
-    row.addEventListener('click', e=>{ if(e.target.dataset.del) return; openVisitDetail(row.dataset.vid, visits); });
-  });
-  document.querySelectorAll('[data-del]').forEach(btn=>{
-    btn.addEventListener('click', async e=>{
-      e.stopPropagation();
-      if(!confirm('¿Eliminar esta visita? Esta acción no se puede deshacer.')) return;
-      try{
-        await apiPost({ action:'delete_visit', visit_id: btn.dataset.del });
-        rowsCache = null;
-        renderHistorial();
-      }catch(err){ alert('No se pudo eliminar: '+err.message); }
-    });
-  });
+/* ======================= FILTRO DE PERIODO (compartido) ======================= */
+function periodFilterHTML(){
+  const custom = period.mode==='custom';
+  return '<div class="card"><label class="field-label">Periodo</label>'+
+    '<select id="periodMode" style="margin-bottom:'+(custom?'10px':'0')+';">'+
+      '<option value="all" '+(period.mode==='all'?'selected':'')+'>Todo el periodo</option>'+
+      '<option value="thisMonth" '+(period.mode==='thisMonth'?'selected':'')+'>Este mes</option>'+
+      '<option value="lastMonth" '+(period.mode==='lastMonth'?'selected':'')+'>Mes anterior</option>'+
+      '<option value="last30" '+(period.mode==='last30'?'selected':'')+'>Últimos 30 días</option>'+
+      '<option value="custom" '+(custom?'selected':'')+'>Rango personalizado</option>'+
+    '</select>'+
+    (custom?('<div class="row2"><div><label class="field-label">Desde</label><input type="date" id="periodFrom" value="'+(period.from||'')+'"></div>'+
+      '<div><label class="field-label">Hasta</label><input type="date" id="periodTo" value="'+(period.to||'')+'"></div></div>'):'')+
+  '</div>';
 }
-function openVisitDetail(vid, visits){
-  const v = visits.find(x=>x.id===vid);
-  if(!v) return;
-  const dt = new Date(v.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const storeName = STORES.find(s=>s.id===histStoreId).name;
-  let body = `<button class="close-x" id="closeDetail">×</button>
-    <h2 class="section-title">${storeName} — ${dt}</h2>
-    <div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Auditor: ${v.auditor||'—'} · Cumplimiento general: <b>${v.scoreOverall}%</b></div>`;
-  CHECKLIST.forEach(cat=>{
-    body += `<div style="margin-top:10px;font-weight:600;font-size:13px;">${cat.cat} — ${v.scoreByCat[cat.cat]===null?'N/A':v.scoreByCat[cat.cat]+'%'}</div>`;
-    cat.items.forEach(i=>{
-      const r = v.responses[i.id] || {status:null,comment:'',photo:null};
-      const stLabel = r.status==='ok'?'Cumple':r.status==='bad'?'No cumple':r.status==='na'?'N/A':'Sin evaluar';
-      const stCls = r.status==='ok'?'ok':r.status==='bad'?'bad':'na';
-      body += `<div class="detail-item">
-        <div>${i.text}</div><div class="st ${stCls}">${stLabel}</div>
-        ${r.comment?`<div class="cm">${r.comment}</div>`:''}
-        ${r.photo?`<img src="${r.photo}">`:''}
-      </div>`;
-    });
-  });
-  const overlay = document.createElement('div');
-  overlay.className = 'detail-modal';
-  overlay.innerHTML = `<div class="detail-sheet">${body}</div>`;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
-  overlay.querySelector('#closeDetail').addEventListener('click', ()=>overlay.remove());
+function applyPeriodMode(mode){
+  const today = new Date(); const pad=function(n){return String(n).padStart(2,'0');};
+  const iso=function(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+  if(mode==='all'){ period = {mode:'all', from:'', to:''}; }
+  else if(mode==='thisMonth'){ const first=new Date(today.getFullYear(),today.getMonth(),1); period={mode:mode,from:iso(first),to:iso(today)}; }
+  else if(mode==='lastMonth'){ const first=new Date(today.getFullYear(),today.getMonth()-1,1); const last=new Date(today.getFullYear(),today.getMonth(),0); period={mode:mode,from:iso(first),to:iso(last)}; }
+  else if(mode==='last30'){ const from=new Date(today); from.setDate(from.getDate()-30); period={mode:mode,from:iso(from),to:iso(today)}; }
+  else if(mode==='custom'){ period={mode:mode, from:period.from||iso(today), to:period.to||iso(today)}; }
 }
-function errorCard(err){
-  return `<div class="card"><div class="status-line bad">No se pudo cargar la información: ${err.message}<br>Revisa la URL del backend en Configuración (⚙).</div></div>`;
+function bindPeriodBar(onChange){
+  const sel = document.getElementById('periodMode');
+  if(sel) sel.addEventListener('change', function(e){ applyPeriodMode(e.target.value); onChange(); });
+  const cFrom = document.getElementById('periodFrom'), cTo = document.getElementById('periodTo');
+  if(cFrom) cFrom.addEventListener('change', function(e){ period.from = e.target.value; onChange(); });
+  if(cTo) cTo.addEventListener('change', function(e){ period.to = e.target.value; onChange(); });
 }
+function inPeriod(iso){
+  if(period.mode==='all') return true;
+  if(!period.from || !period.to) return true;
+  const d = new Date(iso), df = new Date(period.from+'T00:00:00'), dt = new Date(period.to+'T23:59:59');
+  return d>=df && d<=dt;
+}
+function periodLabel(){ return period.mode==='all' ? 'todo el periodo' : ('del '+(period.from||'')+' al '+(period.to||'')); }
 
 /* ======================= MINI-CHARTS ======================= */
 function buildBarListHTML(items){
-  return items.map(it=>{
+  return items.map(function(it){
     const pct = it.value===null ? 0 : it.value;
-    return `<div style="margin-bottom:9px;">
-      <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-soft);margin-bottom:3px;">
-        <span>${it.label}</span><span style="font-family:var(--font-mono);font-weight:600;color:var(--ink);">${it.value===null?'—':it.value+'%'}</span>
-      </div>
-      <div style="background:#EFEDE6;border-radius:5px;height:10px;overflow:hidden;">
-        <div style="width:${pct}%;height:100%;background:${it.color};border-radius:5px;"></div>
-      </div>
-    </div>`;
+    return '<div style="margin-bottom:9px;"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-soft);margin-bottom:3px;">'+
+      '<span>'+it.label+'</span><span style="font-family:var(--font-mono);font-weight:600;color:var(--ink);">'+(it.value===null?'—':it.value+'%')+'</span></div>'+
+      '<div style="background:#EFEDE6;border-radius:5px;height:10px;overflow:hidden;"><div style="width:'+pct+'%;height:100%;background:'+it.color+';border-radius:5px;"></div></div></div>';
   }).join('');
 }
 function buildTrendSVG(points){
   if(points.length===0) return '<div class="empty">Sin datos en este periodo.</div>';
-  const w=320, h=150, padL=26, padR=8, padT=10, padB=22;
-  const innerW=w-padL-padR, innerH=h-padT-padB;
-  const n=points.length;
+  const w=320,h=150,padL=26,padR=8,padT=10,padB=22, innerW=w-padL-padR, innerH=h-padT-padB, n=points.length;
   const stepX = n>1 ? innerW/(n-1) : 0;
-  const xy = points.map((p,idx)=>{
+  const xy = points.map(function(p,idx){
     const x = padL + (n>1 ? idx*stepX : innerW/2);
     const y = padT + innerH - (p.value/100*innerH);
     return {x:x,y:y,label:p.label};
   });
-  const pathD = xy.map((p,i)=> (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
-  const areaD = pathD + ' L'+xy[xy.length-1].x.toFixed(1)+','+(padT+innerH).toFixed(1)+' L'+xy[0].x.toFixed(1)+','+(padT+innerH).toFixed(1)+' Z';
-  const gridLines = [0,25,50,75,100].map(v=>{
+  const pathD = xy.map(function(p,i){ return (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1); }).join(' ');
+  const areaD = pathD+' L'+xy[xy.length-1].x.toFixed(1)+','+(padT+innerH).toFixed(1)+' L'+xy[0].x.toFixed(1)+','+(padT+innerH).toFixed(1)+' Z';
+  const gridLines = [0,25,50,75,100].map(function(v){
     const y = padT + innerH - (v/100*innerH);
     return '<line x1="'+padL+'" y1="'+y+'" x2="'+(w-padR)+'" y2="'+y+'" stroke="#E1DFD6" stroke-width="1"/><text x="0" y="'+(y+3)+'" font-size="8" fill="#9A9A8E">'+v+'</text>';
   }).join('');
-  const dots = xy.map(p=>'<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3" fill="#28565C"/>').join('');
+  const dots = xy.map(function(p){ return '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="3" fill="#28565C"/>'; }).join('');
   const labelEvery = n<=6 ? 1 : Math.ceil(n/6);
-  const labels = xy.map((p,i)=> i%labelEvery===0 ? '<text x="'+p.x.toFixed(1)+'" y="'+(h-6)+'" font-size="8" fill="#9A9A8E" text-anchor="middle">'+p.label+'</text>' : '').join('');
+  const labels = xy.map(function(p,i){ return i%labelEvery===0 ? '<text x="'+p.x.toFixed(1)+'" y="'+(h-6)+'" font-size="8" fill="#9A9A8E" text-anchor="middle">'+p.label+'</text>' : ''; }).join('');
   return '<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto;display:block;">'+gridLines+
-    '<path d="'+areaD+'" fill="rgba(40,86,92,0.15)" stroke="none"/>'+
-    '<path d="'+pathD+'" fill="none" stroke="#28565C" stroke-width="2"/>'+dots+labels+'</svg>';
+    '<path d="'+areaD+'" fill="rgba(40,86,92,0.15)" stroke="none"/><path d="'+pathD+'" fill="none" stroke="#28565C" stroke-width="2"/>'+dots+labels+'</svg>';
 }
 
-/* ======================= RENDER: ESTADISTICAS ======================= */
-let statStoreId = '';
-async function renderStats(){
-  if(!getApiUrl()){ renderConfig(); return; }
-  let html = `<div class="card stat-select"><label class="field-label">Tienda</label>
-    <select id="statSel"><option value="">Todas las tiendas</option>${storeOptionsHTML(statStoreId).replace('<option value="">Selecciona tienda…</option>','')}</select>
-  </div>` + periodFilterHTML();
-  document.getElementById('main').innerHTML = html + '<div class="empty">Cargando…</div>';
+/* ======================= MODULO: AUDITORIAS ======================= */
+function renderAuditorias(){
+  const tabs = [{id:'nueva',label:'Visita'},{id:'historial',label:'Historial'},{id:'stats',label:'Stats'},{id:'ranking',label:'Ranking'},{id:'export',label:'Exportar'}];
+  const active = state.subTab.auditorias;
+  document.getElementById('main').innerHTML = subtabsHTML(tabs, active);
+  bindSubtabs('auditorias', renderAuditorias);
+  if(active==='nueva') renderAudNueva();
+  else if(active==='historial') renderAudHistorial();
+  else if(active==='stats') renderAudStats();
+  else if(active==='ranking') renderAudRanking();
+  else if(active==='export') renderAudExport();
+}
+function scopedStores(){
+  const auth = getAuth();
+  if(auth.rol==='jefe_tienda') return STORES.filter(function(s){ return s.id===auth.tienda_id; });
+  return STORES;
+}
+function storeOptionsHTML(selected){
+  const scoped = scopedStores();
+  const dib = scoped.filter(function(s){return s.brand==='DIB';});
+  const bz = scoped.filter(function(s){return s.brand==='BAZHARS';});
+  const opt = function(s){ return '<option value="'+s.id+'" '+(s.id===selected?'selected':'')+'>'+s.name+'</option>'; };
+  return '<option value="">Selecciona tienda…</option>'+
+    (dib.length?'<optgroup label="DIB">'+dib.map(opt).join('')+'</optgroup>':'')+
+    (bz.length?'<optgroup label="BAZHARS">'+bz.map(opt).join('')+'</optgroup>':'');
+}
+function renderAudNueva(){
+  const auth = getAuth();
+  if(auth.rol==='jefe_tienda' && !draft.storeId) draft.storeId = auth.tienda_id;
+  const score = computeScore(draft.responses);
+  const today = new Date().toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
+  let html = document.getElementById('main').innerHTML;
+  html += '<div class="card"><div class="row2">'+
+    '<div><label class="field-label">Tienda</label><select id="storeSel" '+(auth.rol==='jefe_tienda'?'disabled':'')+'>'+storeOptionsHTML(draft.storeId)+'</select></div>'+
+    '<div><label class="field-label">Auditor / Responsable</label><input type="text" id="auditorInp" value="'+escAttr(draft.auditor)+'" placeholder="Nombre (opcional)"></div>'+
+    '</div><div style="margin-top:8px;font-size:12px;color:var(--ink-soft)">Fecha visita: '+today+'</div></div>';
 
-  let allRaw;
-  try{ allRaw = await loadAllVisits(); }
-  catch(err){ document.getElementById('main').innerHTML = html + errorCard(err); return; }
-  const all = {};
-  Object.keys(allRaw).forEach(k=>{ all[k] = allRaw[k].filter(v=>inPeriod(v.date)); });
-
-  const barItems = STORES.map(s=>{
-    const vs = all[s.id];
-    const avg = vs.length ? Math.round(vs.reduce((a,v)=>a+v.scoreOverall,0)/vs.length) : null;
-    return { label: s.name.replace(/^(DIB|Bazhars)\s*/,''), value: avg, color: s.brand==='DIB'?'#28565C':'#B8412E' };
-  });
-
-  let trendHTML = '';
-  let visitsForFail = [];
-  if(statStoreId){
-    visitsForFail = all[statStoreId];
-    const sorted = visitsForFail.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
-    const points = sorted.map(v=>({ label: new Date(v.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit'}), value: v.scoreOverall }));
-    trendHTML = `<div class="card"><h2 class="section-title">Evolución</h2>${buildTrendSVG(points)}</div>`;
-  } else {
-    Object.values(all).forEach(vs=>{ visitsForFail = visitsForFail.concat(vs); });
+  if(!draft.storeId){
+    html += '<div class="empty">Selecciona una tienda para iniciar el checklist.</div>';
+    document.getElementById('main').innerHTML = html;
+    bindAudNuevaTop(); return;
   }
+  CHECKLIST.forEach(function(cat){
+    let catSum=0, catCnt=0;
+    cat.items.forEach(function(i){ const p=draft.responses[i.id].puntaje; if(p){catCnt++; catSum+=p;} });
+    const catPct = catCnt ? Math.round(catSum/catCnt/5*100)+'%' : '—';
+    html += '<div class="cat-block"><div class="cat-head"><span class="dot"></span><h3>'+cat.cat+'</h3><span class="cat-score">'+catPct+'</span></div>';
+    cat.items.forEach(function(i){
+      const r = draft.responses[i.id];
+      const needsPhoto = i.crit && r.puntaje && r.puntaje<=2 && !r.photo;
+      html += '<div class="item" data-item="'+i.id+'"><div class="item-text">'+(i.crit?'<span class="crit" title="Punto crítico"></span>':'')+i.text+'</div>'+
+        '<div class="score-btns">'+
+          '<button data-sc="na" class="'+(r.puntaje===null?'selNA':'')+'">N/A</button>'+
+          [1,2,3,4,5].map(function(n){ return '<button data-sc="'+n+'" class="'+(r.puntaje===n?'sel'+n:'')+'">'+n+'</button>'; }).join('')+
+        '</div>'+
+        '<div class="item-extra"><input type="text" class="cmInp" placeholder="Comentario (opcional)" value="'+escAttr(r.comment)+'">'+
+          photoField(i.id, r.photo)+
+        '</div>'+
+        (needsPhoto?'<div class="req-photo">Puntaje bajo en ítem crítico — se recomienda adjuntar foto de respaldo</div>':'')+
+      '</div>';
+    });
+    html += '</div>';
+  });
+  const badgeClass = score.overall===null?'':(score.overall>=90?'':score.overall>=70?'warn':'bad');
+  html += '<div class="footer-bar"><div class="score-badge '+badgeClass+'">'+(score.overall===null?'—':score.overall+'%')+'</div>'+
+    '<button class="save-btn" id="saveBtn" '+(score.overall===null?'disabled':'')+'>Guardar visita</button></div>';
+  document.getElementById('main').innerHTML = html;
+  bindAudNuevaTop(); bindAudNuevaItems();
+  const saveBtnEl = document.getElementById('saveBtn');
+  if(saveBtnEl) saveBtnEl.addEventListener('click', saveVisita);
+}
+function bindAudNuevaTop(){
+  const sel = document.getElementById('storeSel');
+  if(sel) sel.addEventListener('change', function(e){ draft.storeId = e.target.value; renderAudNueva(); });
+  const auditorEl = document.getElementById('auditorInp');
+  if(auditorEl) auditorEl.addEventListener('input', function(e){ draft.auditor = e.target.value; });
+}
+function bindAudNuevaItems(){
+  document.querySelectorAll('.item').forEach(function(itemEl){
+    const id = itemEl.dataset.item;
+    itemEl.querySelectorAll('.score-btns button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        draft.responses[id].puntaje = btn.dataset.sc==='na' ? null : Number(btn.dataset.sc);
+        renderAudNueva();
+      });
+    });
+    itemEl.querySelector('.cmInp').addEventListener('input', function(e){ draft.responses[id].comment = e.target.value; });
+    bindPhotoField(itemEl, id, function(url){ draft.responses[id].photo = url; renderAudNueva(); });
+  });
+}
+async function saveVisita(){
+  const auth = getAuth();
+  const score = computeScore(draft.responses);
+  const store = STORES.find(function(s){return s.id===draft.storeId;});
+  const visitId = 'v'+Date.now();
+  const fechaISO = new Date().toISOString().slice(0,10);
+  const rows = ALL_ITEMS.map(function(i){
+    const r = draft.responses[i.id];
+    return { visit_id:visitId, tienda_id:draft.storeId, tienda_nombre:store.name, marca:store.brand,
+      auditor: draft.auditor||auth.nombre||'', fecha:fechaISO, categoria:i.cat, item_id:i.id, item_texto:i.text,
+      critico: i.crit?'Si':'No', puntaje: r.puntaje||'', comentario:r.comment||'', foto:r.photo||null, cumplimiento_visita:score.overall };
+  });
+  const btn = document.getElementById('saveBtn');
+  if(btn){ btn.disabled=true; btn.textContent='Guardando…'; }
+  try{
+    const res = await apiPost({ action:'save_visita', rows: rows });
+    if(!res.ok) throw new Error(res.error||'Error desconocido');
+    cache.visitas = null;
+    draft = { storeId: auth.rol==='jefe_tienda'?auth.tienda_id:'', auditor:'', responses:{} };
+    ALL_ITEMS.forEach(function(i){ draft.responses[i.id] = {puntaje:null, comment:'', photo:null}; });
+    alert('Visita guardada — '+store.name+' · Cumplimiento '+score.overall+'%');
+    state.subTab.auditorias = 'historial';
+    renderAuditorias();
+  }catch(err){
+    alert('No se pudo guardar: '+err.message);
+    if(btn){ btn.disabled=false; btn.textContent='Guardar visita'; }
+  }
+}
 
-  const failCounts = {};
-  ALL_ITEMS.forEach(i=>failCounts[i.id]={text:i.text, cat:i.cat, bad:0, total:0});
-  visitsForFail.forEach(v=>{
-    Object.keys(v.responses).forEach(id=>{
-      const r = v.responses[id];
-      if(r.status==='ok'||r.status==='bad'){ failCounts[id].total++; if(r.status==='bad') failCounts[id].bad++; }
+let histStoreId = '';
+async function renderAudHistorial(){
+  const auth = getAuth();
+  if(auth.rol==='jefe_tienda') histStoreId = auth.tienda_id;
+  let html = document.getElementById('main').innerHTML;
+  html += '<div class="card"><label class="field-label">Tienda</label><select id="histSel" '+(auth.rol==='jefe_tienda'?'disabled':'')+'>'+storeOptionsHTML(histStoreId)+'</select></div>';
+  if(!histStoreId){
+    html += '<div class="empty">Selecciona una tienda para ver su historial.</div>';
+    document.getElementById('main').innerHTML = html;
+    document.getElementById('histSel').addEventListener('change', function(e){ histStoreId=e.target.value; renderAudHistorial(); });
+    return;
+  }
+  document.getElementById('main').innerHTML = html + '<div class="empty">Cargando…</div>';
+  let visits;
+  try{ visits = (await loadAllVisits())[histStoreId].filter(function(v){return inPeriod(v.date);}).sort(function(a,b){return new Date(b.date)-new Date(a.date);}); }
+  catch(err){ document.getElementById('main').innerHTML = html + errorCard(err); return; }
+  html += periodFilterHTML();
+  if(visits.length===0){ html += '<div class="empty">Sin visitas en '+periodLabel()+'.</div>'; }
+  else{
+    visits.forEach(function(v){
+      const dt = new Date(v.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
+      const color = v.scoreOverall>=90?'':(v.scoreOverall>=70?'color:var(--amber)':'color:var(--brick)');
+      html += '<div class="row-item" data-vid="'+v.id+'"><div style="font-family:var(--font-mono);font-weight:600;width:44px;text-align:center;'+color+'">'+v.scoreOverall+'%</div>'+
+        '<div class="meta"><div class="d">'+dt+'</div><div class="s">'+(v.auditor||'Sin auditor')+'</div></div>'+
+        '<button class="del-btn" data-del="'+v.id+'">🗑</button></div>';
+    });
+  }
+  document.getElementById('main').innerHTML = html;
+  document.getElementById('histSel').addEventListener('change', function(e){ histStoreId=e.target.value; renderAudHistorial(); });
+  bindPeriodBar(renderAudHistorial);
+  document.querySelectorAll('.row-item').forEach(function(row){
+    row.addEventListener('click', function(e){ if(e.target.dataset.del) return; openVisitDetail(row.dataset.vid, visits); });
+  });
+  document.querySelectorAll('[data-del]').forEach(function(btn){
+    btn.addEventListener('click', async function(e){
+      e.stopPropagation();
+      if(!confirm('¿Eliminar esta visita?')) return;
+      try{ await apiPost({action:'delete_visita', visit_id:btn.dataset.del}); cache.visitas=null; renderAudHistorial(); }
+      catch(err){ alert('No se pudo eliminar: '+err.message); }
     });
   });
-  const failArr = Object.values(failCounts).filter(f=>f.total>0).sort((a,b)=>(b.bad/b.total)-(a.bad/a.total)).slice(0,6);
-  const failListHTML = failArr.length===0 ? '<li>Aún no hay datos suficientes.</li>'
-    : failArr.map(f=>'<li><span>'+f.text+'</span><span class="n">'+f.bad+'/'+f.total+' veces</span></li>').join('');
-
-  document.getElementById('main').innerHTML = html +
-    `<div class="card"><h2 class="section-title">Cumplimiento promedio por tienda</h2>${buildBarListHTML(barItems)}</div>` +
-    trendHTML +
-    `<div class="card"><h2 class="section-title">Puntos con más incumplimientos</h2><ul class="fail-list">${failListHTML}</ul></div>`;
-
-  document.getElementById('statSel').value = statStoreId;
-  document.getElementById('statSel').addEventListener('change', e=>{ statStoreId=e.target.value; renderStats(); });
-  bindPeriodBar(renderStats);
 }
-
-/* ======================= RENDER: RANKING ======================= */
-async function renderRanking(){
-  if(!getApiUrl()){ renderConfig(); return; }
-  document.getElementById('main').innerHTML = periodFilterHTML() + '<div class="empty">Cargando…</div>';
+function openVisitDetail(vid, visits){
+  const v = visits.find(function(x){return x.id===vid;});
+  if(!v) return;
+  const dt = new Date(v.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'});
+  let body = '<button class="close-x" id="closeDetail">×</button><h2 class="section-title">'+storeName(histStoreId)+' — '+dt+'</h2>'+
+    '<div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;">Auditor: '+(v.auditor||'—')+' · Cumplimiento: <b>'+v.scoreOverall+'%</b></div>';
+  CHECKLIST.forEach(function(cat){
+    body += '<div style="margin-top:10px;font-weight:600;font-size:13px;">'+cat.cat+' — '+(v.scoreByCat[cat.cat]===null?'N/A':v.scoreByCat[cat.cat]+'%')+'</div>';
+    cat.items.forEach(function(i){
+      const r = v.responses[i.id] || {puntaje:null,comment:'',photo:null};
+      body += '<div class="detail-item"><div>'+i.text+'</div><div class="st">'+(r.puntaje?('Puntaje '+r.puntaje+'/5'):'N/A')+'</div>'+
+        (r.comment?'<div class="cm">'+r.comment+'</div>':'')+(r.photo?'<img src="'+r.photo+'">':'')+'</div>';
+    });
+  });
+  const overlay = document.createElement('div');
+  overlay.className = 'detail-modal';
+  overlay.innerHTML = '<div class="detail-sheet">'+body+'</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('#closeDetail').addEventListener('click', function(){ overlay.remove(); });
+}
+let statStoreId = '';
+async function renderAudStats(){
+  let html = document.getElementById('main').innerHTML;
+  html += '<div class="card stat-select"><label class="field-label">Tienda</label>'+
+    '<select id="statSel"><option value="">Todas</option>'+storeOptionsHTML(statStoreId).replace('<option value="">Selecciona tienda…</option>','')+'</select></div>'+periodFilterHTML();
+  document.getElementById('main').innerHTML = html + '<div class="empty">Cargando…</div>';
   let allRaw;
-  try{ allRaw = await loadAllVisits(); }
-  catch(err){ document.getElementById('main').innerHTML = periodFilterHTML() + errorCard(err); bindPeriodBar(renderRanking); return; }
-  const all = {};
-  Object.keys(allRaw).forEach(k=>{ all[k] = allRaw[k].filter(v=>inPeriod(v.date)); });
-  const rows = STORES.map(s=>{
-    const vs = all[s.id];
-    const avg = vs.length ? Math.round(vs.reduce((a,v)=>a+v.scoreOverall,0)/vs.length) : null;
-    const last = vs.length ? vs.slice().sort((a,b)=>new Date(b.date)-new Date(a.date))[0] : null;
-    return {s, avg, count:vs.length, last};
-  }).sort((a,b)=>{ if(a.avg===null) return 1; if(b.avg===null) return -1; return b.avg-a.avg; });
-
-  let html = periodFilterHTML() + `<div class="card"><h2 class="section-title">Ranking de cumplimiento — ${periodLabel()}</h2>
-    <div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Tienda</th><th>Visitas</th><th>Promedio</th><th>Última visita</th></tr></thead><tbody>`;
-  rows.forEach(r=>{
+  try{ allRaw = await loadAllVisits(); } catch(err){ document.getElementById('main').innerHTML = html + errorCard(err); return; }
+  const all = {}; Object.keys(allRaw).forEach(function(k){ all[k] = allRaw[k].filter(function(v){return inPeriod(v.date);}); });
+  const barItems = scopedStores().map(function(s){
+    const vs = all[s.id]; const avg = vs.length ? Math.round(vs.reduce(function(a,v){return a+v.scoreOverall;},0)/vs.length) : null;
+    return { label: s.name.replace(/^(DIB|Bazhars)\s*/,''), value: avg, color: s.brand==='DIB'?'#28565C':'#B8412E' };
+  });
+  let trendHTML = ''; let visitsForFail = [];
+  if(statStoreId){
+    visitsForFail = all[statStoreId];
+    const sorted = visitsForFail.slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+    const points = sorted.map(function(v){ return { label:new Date(v.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit'}), value:v.scoreOverall }; });
+    trendHTML = '<div class="card"><h2 class="section-title">Evolución</h2>'+buildTrendSVG(points)+'</div>';
+  } else { Object.values(all).forEach(function(vs){ visitsForFail = visitsForFail.concat(vs); }); }
+  const failCounts = {}; ALL_ITEMS.forEach(function(i){ failCounts[i.id]={text:i.text,bad:0,total:0}; });
+  visitsForFail.forEach(function(v){
+    Object.keys(v.responses).forEach(function(id){ const r=v.responses[id]; if(r.puntaje){ failCounts[id].total++; if(r.puntaje<=2) failCounts[id].bad++; } });
+  });
+  const failArr = Object.values(failCounts).filter(function(f){return f.total>0;}).sort(function(a,b){return (b.bad/b.total)-(a.bad/a.total);}).slice(0,6);
+  const failListHTML = failArr.length===0 ? '<li>Aún no hay datos suficientes.</li>' : failArr.map(function(f){return '<li><span>'+f.text+'</span><span class="n">'+f.bad+'/'+f.total+' veces ≤2</span></li>';}).join('');
+  document.getElementById('main').innerHTML = html + '<div class="card"><h2 class="section-title">Cumplimiento promedio por tienda</h2>'+buildBarListHTML(barItems)+'</div>'+
+    trendHTML + '<div class="card"><h2 class="section-title">Puntos más débiles (puntaje ≤2)</h2><ul class="fail-list">'+failListHTML+'</ul></div>';
+  document.getElementById('statSel').value = statStoreId;
+  document.getElementById('statSel').addEventListener('change', function(e){ statStoreId=e.target.value; renderAudStats(); });
+  bindPeriodBar(renderAudStats);
+}
+async function renderAudRanking(){
+  document.getElementById('main').innerHTML += periodFilterHTML() + '<div class="empty">Cargando…</div>';
+  let allRaw;
+  try{ allRaw = await loadAllVisits(); } catch(err){ document.getElementById('main').innerHTML += errorCard(err); return; }
+  const all = {}; Object.keys(allRaw).forEach(function(k){ all[k] = allRaw[k].filter(function(v){return inPeriod(v.date);}); });
+  const rows = scopedStores().map(function(s){
+    const vs = all[s.id]; const avg = vs.length ? Math.round(vs.reduce(function(a,v){return a+v.scoreOverall;},0)/vs.length) : null;
+    const last = vs.length ? vs.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);})[0] : null;
+    return {s:s, avg:avg, count:vs.length, last:last};
+  }).sort(function(a,b){ if(a.avg===null) return 1; if(b.avg===null) return -1; return b.avg-a.avg; });
+  let html = document.getElementById('main').innerHTML.split('<div class="empty">Cargando…</div>')[0] +
+    '<div class="card"><h2 class="section-title">Ranking — '+periodLabel()+'</h2><div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Tienda</th><th>Visitas</th><th>Promedio</th><th>Última</th></tr></thead><tbody>';
+  rows.forEach(function(r){
     const brandCls = r.s.brand==='DIB'?'':'bz';
     const lastDt = r.last ? new Date(r.last.date).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'numeric'}) : '—';
-    html += `<tr><td><span class="badgebrand ${brandCls}">${r.s.brand}</span>${r.s.name.replace(/^(DIB|Bazhars)\s*/,'')}</td>
-      <td>${r.count}</td><td class="sc">${r.avg===null?'—':r.avg+'%'}</td><td>${lastDt}</td></tr>`;
+    html += '<tr><td><span class="badgebrand '+brandCls+'">'+r.s.brand+'</span>'+r.s.name.replace(/^(DIB|Bazhars)\s*/,'')+'</td><td>'+r.count+'</td><td class="sc">'+(r.avg===null?'—':r.avg+'%')+'</td><td>'+lastDt+'</td></tr>';
   });
-  html += `</tbody></table></div></div>`;
+  html += '</tbody></table></div></div>';
   document.getElementById('main').innerHTML = html;
-  bindPeriodBar(renderRanking);
+  bindPeriodBar(renderAudRanking);
 }
-
-/* ======================= EXPORTAR (CSV) ======================= */
-function csvEscape(v){
-  const s = (v===null||v===undefined) ? '' : String(v);
-  if(/[",\n;]/.test(s)) return '"'+s.replace(/"/g,'""')+'"';
-  return s;
-}
+function csvEscape(v){ const s=(v===null||v===undefined)?'':String(v); return /[",\n;]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
 function downloadBlob(content, filename, mime){
-  const blob = new Blob([content], {type: mime});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+  const blob = new Blob([content], {type:mime}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
 }
-function fmtDateCSV(iso){
-  const d = new Date(iso);
-  const pad = n=> String(n).padStart(2,'0');
-  return pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear();
-}
-async function exportDetailCSV(){
+function fmtDateCSV(iso){ const d=new Date(iso); const pad=function(n){return String(n).padStart(2,'0');}; return pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear(); }
+async function exportAudDetailCSV(){
   const all = await loadAllVisits();
-  const rows = [['tienda','marca','fecha','auditor','categoria','item','critico','estado','comentario','tiene_foto','cumplimiento_visita_%']];
-  STORES.forEach(s=>{
-    (all[s.id]||[]).filter(v=>inPeriod(v.date)).forEach(v=>{
-      ALL_ITEMS.forEach(i=>{
+  const rows = [['tienda','marca','fecha','auditor','categoria','item','critico','puntaje_1_5','comentario','tiene_foto','cumplimiento_visita_%']];
+  scopedStores().forEach(function(s){
+    (all[s.id]||[]).filter(function(v){return inPeriod(v.date);}).forEach(function(v){
+      ALL_ITEMS.forEach(function(i){
         const r = v.responses[i.id] || {};
-        const estadoTxt = r.status==='ok'?'Cumple':r.status==='bad'?'No cumple':r.status==='na'?'N/A':'Sin evaluar';
-        rows.push([s.name, s.brand, fmtDateCSV(v.date), v.auditor||'', i.cat, i.text, i.crit?'Si':'No', estadoTxt, r.comment||'', r.photo?'Si':'No', v.scoreOverall]);
+        rows.push([s.name, s.brand, fmtDateCSV(v.date), v.auditor||'', i.cat, i.text, i.crit?'Si':'No', r.puntaje||'', r.comment||'', r.photo?'Si':'No', v.scoreOverall]);
       });
     });
   });
-  const csv = '\uFEFF'+rows.map(r=>r.map(csvEscape).join(';')).join('\n');
-  downloadBlob(csv, 'checklist_detalle_'+new Date().toISOString().slice(0,10)+'.csv', 'text/csv;charset=utf-8');
+  downloadBlob('\uFEFF'+rows.map(function(r){return r.map(csvEscape).join(';');}).join('\n'), 'auditorias_detalle_'+new Date().toISOString().slice(0,10)+'.csv', 'text/csv;charset=utf-8');
 }
-async function exportSummaryCSV(){
+async function exportAudSummaryCSV(){
   const all = await loadAllVisits();
-  const rows = [['tienda','marca','fecha','auditor','cumplimiento_%','personal_%','presentacion_%','orden_%','limpieza_%','protocolo_atencion_%']];
-  STORES.forEach(s=>{
-    (all[s.id]||[]).filter(v=>inPeriod(v.date)).forEach(v=>{
-      rows.push([s.name, s.brand, fmtDateCSV(v.date), v.auditor||'', v.scoreOverall,
-        v.scoreByCat['Personal'], v.scoreByCat['Presentación'], v.scoreByCat['Orden'], v.scoreByCat['Limpieza'], v.scoreByCat['Protocolo de atención']]);
+  const rows = [['tienda','marca','fecha','auditor','cumplimiento_%','personal_%','presentacion_%','orden_%','limpieza_%','protocolo_%']];
+  scopedStores().forEach(function(s){
+    (all[s.id]||[]).filter(function(v){return inPeriod(v.date);}).forEach(function(v){
+      rows.push([s.name, s.brand, fmtDateCSV(v.date), v.auditor||'', v.scoreOverall, v.scoreByCat['Personal'], v.scoreByCat['Presentación'], v.scoreByCat['Orden'], v.scoreByCat['Limpieza'], v.scoreByCat['Protocolo de atención']]);
     });
   });
-  const csv = '\uFEFF'+rows.map(r=>r.map(csvEscape).join(';')).join('\n');
-  downloadBlob(csv, 'checklist_resumen_'+new Date().toISOString().slice(0,10)+'.csv', 'text/csv;charset=utf-8');
+  downloadBlob('\uFEFF'+rows.map(function(r){return r.map(csvEscape).join(';');}).join('\n'), 'auditorias_resumen_'+new Date().toISOString().slice(0,10)+'.csv', 'text/csv;charset=utf-8');
 }
-function renderExport(){
-  if(!getApiUrl()){ renderConfig(); return; }
-  const html = periodFilterHTML() + `
-  <div class="card">
-    <h2 class="section-title">Exportar registros</h2>
-    <div style="font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;">Descarga la información de <b>${periodLabel()}</b> para Excel/pandas. Los datos crudos también están siempre disponibles en el Google Sheet del backend.</div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="save-btn" id="btnCsvDetail" style="width:100%;">Descargar detalle (CSV, 1 fila por punto de checklist)</button>
-      <button class="save-btn" id="btnCsvSummary" style="width:100%;background:var(--teal);">Descargar resumen (CSV, 1 fila por visita)</button>
-    </div>
-  </div>`;
+function renderAudExport(){
+  let html = document.getElementById('main').innerHTML + periodFilterHTML() + '<div class="card"><h2 class="section-title">Exportar</h2>'+
+    '<div style="display:flex;flex-direction:column;gap:10px;">'+
+    '<button class="save-btn" id="btnCsvDetail">Descargar detalle (CSV)</button>'+
+    '<button class="save-btn" id="btnCsvSummary" style="background:var(--teal);">Descargar resumen (CSV)</button></div></div>';
   document.getElementById('main').innerHTML = html;
-  bindPeriodBar(renderExport);
-  document.getElementById('btnCsvDetail').addEventListener('click', exportDetailCSV);
-  document.getElementById('btnCsvSummary').addEventListener('click', exportSummaryCSV);
+  bindPeriodBar(renderAudExport);
+  document.getElementById('btnCsvDetail').addEventListener('click', exportAudDetailCSV);
+  document.getElementById('btnCsvSummary').addEventListener('click', exportAudSummaryCSV);
 }
 
-/* ======================= ROUTER ======================= */
-function render(){
-  if(state.tab==='nueva') renderNueva();
-  else if(state.tab==='historial') renderHistorial();
-  else if(state.tab==='stats') renderStats();
-  else if(state.tab==='ranking') renderRanking();
-  else if(state.tab==='export') renderExport();
+/* ======================= MODULO: CARTELERIA ======================= */
+async function renderCarteleria(){
+  const auth = getAuth();
+  const tabs = [];
+  if(auth.rol==='admin') tabs.push({id:'catalogo',label:'Catálogo'});
+  tabs.push({id:'mitienda',label: auth.rol==='jefe_tienda'?'Mi tienda':'Por tienda'});
+  if(auth.rol!=='jefe_tienda') tabs.push({id:'consolidado',label:'Consolidado'});
+  if(!tabs.find(function(t){return t.id===state.subTab.carteleria;})) state.subTab.carteleria = tabs[0].id;
+  const active = state.subTab.carteleria;
+  document.getElementById('main').innerHTML = subtabsHTML(tabs, active) + '<div class="empty">Cargando…</div>';
+  bindSubtabs('carteleria', renderCarteleria);
+  let data;
+  try{ data = await apiGet('action=list_carteleria'); if(!data.ok) throw new Error(data.error); } catch(err){ document.getElementById('main').innerHTML = subtabsHTML(tabs, active) + errorCard(err); return; }
+  const head = subtabsHTML(tabs, active);
+  if(active==='catalogo') renderCartCatalogo(head, data);
+  else if(active==='mitienda') renderCartMiTienda(head, data);
+  else if(active==='consolidado') renderCartConsolidado(head, data);
 }
-render();
+function renderCartCatalogo(head, data){
+  let html = head + '<div class="card"><h2 class="section-title">Nueva pieza de cartelería</h2>'+
+    '<div class="row2"><div><label class="field-label">Pieza</label><input type="text" id="piezaInp" placeholder="Ej: Vitrina precio alfombras"></div>'+
+    '<div><label class="field-label">Campaña / vigencia</label><input type="text" id="campInp" placeholder="Ej: Liquidación agosto"></div></div>'+
+    '<button class="save-btn" id="addPiezaBtn" style="margin-top:10px;">Agregar al catálogo</button></div>'+
+    '<div class="card"><h2 class="section-title">Catálogo activo</h2>'+
+    (data.catalogo.length===0?'<div class="empty">Sin piezas aún.</div>':data.catalogo.map(function(p){
+      return '<div class="row-item"><div class="meta"><div class="d">'+p.pieza+'</div><div class="s">'+(p.campania||'')+'</div></div></div>';
+    }).join(''))+'</div>';
+  document.getElementById('main').innerHTML = html;
+  document.getElementById('addPiezaBtn').addEventListener('click', async function(){
+    const pieza = document.getElementById('piezaInp').value.trim();
+    if(!pieza){ alert('Falta el nombre de la pieza'); return; }
+    try{ await apiPost({action:'save_carteleria_pieza', pieza:pieza, campania:document.getElementById('campInp').value.trim()}); renderCarteleria(); }
+    catch(err){ alert('Error: '+err.message); }
+  });
+}
+function renderCartMiTienda(head, data){
+  const auth = getAuth();
+  let storeId = auth.rol==='jefe_tienda' ? auth.tienda_id : (state.cartStoreSel || '');
+  let html = head;
+  if(auth.rol!=='jefe_tienda'){
+    html += '<div class="card"><label class="field-label">Tienda</label><select id="cartStoreSel">'+storeOptionsHTML(storeId)+'</select></div>';
+  }
+  if(!storeId){ html += '<div class="empty">Selecciona una tienda.</div>'; document.getElementById('main').innerHTML = html;
+    const sel=document.getElementById('cartStoreSel'); if(sel) sel.addEventListener('change', function(e){ state.cartStoreSel=e.target.value; renderCarteleria(); });
+    return; }
+  if(data.catalogo.length===0){ html += '<div class="empty">Aún no hay piezas en el catálogo.</div>'; document.getElementById('main').innerHTML = html; return; }
+  html += '<div class="card"><h2 class="section-title">Estado por pieza</h2>';
+  data.catalogo.forEach(function(p){
+    const est = data.estado.find(function(e){return e.tienda_id===storeId && e.pieza_id===p.id;});
+    const estado = est ? est.estado : 'pendiente';
+    html += '<div class="item" data-pieza="'+p.id+'"><div class="item-text"><b>'+p.pieza+'</b>'+(p.campania?' — '+p.campania:'')+'</div>'+
+      '<div class="score-btns" style="margin-top:8px;"><button data-est="pendiente" class="'+(estado==='pendiente'?'sel3':'')+'">Pendiente</button>'+
+      '<button data-est="instalada" class="'+(estado==='instalada'?'sel5':'')+'">Instalada</button></div>'+
+      '<div class="item-extra">'+photoField('p_'+p.id, est?est.foto:null)+'</div></div>';
+  });
+  html += '</div>';
+  document.getElementById('main').innerHTML = html;
+  const sel = document.getElementById('cartStoreSel');
+  if(sel) sel.addEventListener('change', function(e){ state.cartStoreSel=e.target.value; renderCarteleria(); });
+  document.querySelectorAll('.item').forEach(function(itemEl){
+    const piezaId = itemEl.dataset.pieza;
+    let pendingPhoto = null;
+    bindPhotoField(itemEl, 'p_'+piezaId, function(url){ pendingPhoto = url; saveCartEstado(storeId, piezaId, currentSelEstado(itemEl), url); });
+    itemEl.querySelectorAll('.score-btns button').forEach(function(btn){
+      btn.addEventListener('click', function(){ saveCartEstado(storeId, piezaId, btn.dataset.est, pendingPhoto); });
+    });
+  });
+}
+function currentSelEstado(itemEl){ const b = itemEl.querySelector('.score-btns button.sel5'); return b ? 'instalada' : 'pendiente'; }
+async function saveCartEstado(storeId, piezaId, estado, foto){
+  try{ await apiPost({action:'save_carteleria_estado', tienda_id:storeId, pieza_id:piezaId, estado:estado, foto:foto||null}); cache.carteleria=null; renderCarteleria(); }
+  catch(err){ alert('No se pudo guardar: '+err.message); }
+}
+function renderCartConsolidado(head, data){
+  let html = head + '<div class="card"><h2 class="section-title">Cumplimiento de cartelería por tienda</h2><div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Tienda</th><th>Instaladas</th><th>Pendientes</th><th>%</th></tr></thead><tbody>';
+  const totalPiezas = data.catalogo.length;
+  STORES.forEach(function(s){
+    const est = data.estado.filter(function(e){return e.tienda_id===s.id;});
+    const inst = est.filter(function(e){return e.estado==='instalada';}).length;
+    const pct = totalPiezas ? Math.round(inst/totalPiezas*100) : 0;
+    html += '<tr><td>'+s.name+'</td><td>'+inst+'</td><td>'+(totalPiezas-inst)+'</td><td class="sc">'+pct+'%</td></tr>';
+  });
+  html += '</tbody></table></div></div>';
+  document.getElementById('main').innerHTML = html;
+}
+
+/* ======================= MODULO: TAREAS ======================= */
+async function renderTareas(){
+  const auth = getAuth();
+  const tabs = [];
+  if(auth.rol==='admin' || auth.rol==='supervisor') tabs.push({id:'nueva',label:'Nueva tarea'});
+  tabs.push({id:'mis',label: auth.rol==='jefe_tienda'?'Mis tareas':'Tareas por tienda'});
+  if(auth.rol!=='jefe_tienda') tabs.push({id:'seguimiento',label:'Seguimiento'});
+  if(!tabs.find(function(t){return t.id===state.subTab.tareas;})) state.subTab.tareas = tabs[0].id;
+  const active = state.subTab.tareas;
+  document.getElementById('main').innerHTML = subtabsHTML(tabs, active) + '<div class="empty">Cargando…</div>';
+  bindSubtabs('tareas', renderTareas);
+  let data;
+  try{ data = await apiGet('action=list_tareas'); if(!data.ok) throw new Error(data.error); } catch(err){ document.getElementById('main').innerHTML = subtabsHTML(tabs, active) + errorCard(err); return; }
+  const head = subtabsHTML(tabs, active);
+  if(active==='nueva') renderTareaNueva(head);
+  else if(active==='mis') renderTareaMis(head, data);
+  else if(active==='seguimiento') renderTareaSeguimiento(head, data);
+}
+function renderTareaNueva(head){
+  let html = head + '<div class="card"><h2 class="section-title">Nueva tarea</h2>'+
+    '<label class="field-label">Título</label><input type="text" id="taTitulo">'+
+    '<div style="margin-top:10px;"><label class="field-label">Descripción</label><textarea id="taDesc"></textarea></div>'+
+    '<div style="margin-top:10px;"><label class="field-label">Fecha límite</label><input type="date" id="taFecha"></div>'+
+    '<div style="margin-top:12px;"><label class="field-label">Tiendas</label>'+
+    '<div class="storechk"><input type="checkbox" id="chkTodas"><label for="chkTodas"><b>Todas las tiendas</b></label></div>'+
+    STORES.map(function(s){ return '<div class="storechk"><input type="checkbox" class="chkStore" value="'+s.id+'" id="chk_'+s.id+'"><label for="chk_'+s.id+'">'+s.name+'</label></div>'; }).join('')+
+    '</div><button class="save-btn" id="saveTareaBtn" style="margin-top:12px;">Crear y asignar tarea</button></div>';
+  document.getElementById('main').innerHTML = html;
+  document.getElementById('chkTodas').addEventListener('change', function(e){
+    document.querySelectorAll('.chkStore').forEach(function(c){ c.checked = e.target.checked; });
+  });
+  document.getElementById('saveTareaBtn').addEventListener('click', async function(){
+    const titulo = document.getElementById('taTitulo').value.trim();
+    const tiendas = Array.from(document.querySelectorAll('.chkStore:checked')).map(function(c){return c.value;});
+    if(!titulo){ alert('Falta el título'); return; }
+    if(tiendas.length===0){ alert('Selecciona al menos una tienda'); return; }
+    try{
+      await apiPost({action:'save_tarea', titulo:titulo, descripcion:document.getElementById('taDesc').value, fecha_limite:document.getElementById('taFecha').value, tiendas:tiendas});
+      alert('Tarea creada y asignada a '+tiendas.length+' tienda(s).');
+      state.subTab.tareas='seguimiento'; renderTareas();
+    }catch(err){ alert('Error: '+err.message); }
+  });
+}
+function renderTareaMis(head, data){
+  const auth = getAuth();
+  let asign = data.asignaciones;
+  if(auth.rol==='jefe_tienda') asign = asign.filter(function(a){return a.tienda_id===auth.tienda_id;});
+  let html = head;
+  if(asign.length===0){ html += '<div class="empty">No hay tareas asignadas.</div>'; document.getElementById('main').innerHTML = html; return; }
+  asign.forEach(function(a){
+    const t = data.tareas.find(function(x){return x.id===a.tarea_id;});
+    if(!t) return;
+    html += '<div class="card" data-asig="'+a.id+'"><div style="display:flex;justify-content:space-between;align-items:flex-start;">'+
+      '<div><b>'+t.titulo+'</b><div style="font-size:12px;color:var(--ink-soft);">'+ (auth.rol!=='jefe_tienda'? storeName(a.tienda_id)+' · ':'') + (t.fecha_limite?'Vence '+t.fecha_limite:'') +'</div></div>'+
+      '<span class="pill '+a.estado+'">'+a.estado.replace('_',' ')+'</span></div>'+
+      (t.descripcion?'<div style="font-size:13px;margin-top:8px;">'+t.descripcion+'</div>':'')+
+      (auth.rol==='jefe_tienda' ? (
+        '<div class="score-btns" style="margin-top:10px;"><button data-est="pendiente" class="'+(a.estado==='pendiente'?'sel3':'')+'">Pendiente</button>'+
+        '<button data-est="en_proceso" class="'+(a.estado==='en_proceso'?'sel3':'')+'">En proceso</button>'+
+        '<button data-est="hecha" class="'+(a.estado==='hecha'?'sel5':'')+'">Hecha</button></div>'+
+        '<div class="item-extra"><input type="text" class="cmInp" placeholder="Comentario" value="'+escAttr(a.comentario)+'">'+photoField('asig_'+a.id, a.foto)+'</div>'
+      ) : (a.foto ? '<img class="thumb" style="width:60px;height:60px;margin-top:8px;" src="'+a.foto+'">' : ''))+
+      '</div>';
+  });
+  document.getElementById('main').innerHTML = html;
+  if(auth.rol==='jefe_tienda'){
+    document.querySelectorAll('[data-asig]').forEach(function(card){
+      const id = card.dataset.asig;
+      let pendingPhoto = null;
+      bindPhotoField(card, 'asig_'+id, function(url){ pendingPhoto = url; updateAsignacion(id, currentEstadoOf(card), card.querySelector('.cmInp').value, url); });
+      card.querySelectorAll('.score-btns button').forEach(function(btn){
+        btn.addEventListener('click', function(){ updateAsignacion(id, btn.dataset.est, card.querySelector('.cmInp').value, pendingPhoto); });
+      });
+      card.querySelector('.cmInp').addEventListener('change', function(){ updateAsignacion(id, currentEstadoOf(card), card.querySelector('.cmInp').value, pendingPhoto); });
+    });
+  }
+}
+function currentEstadoOf(card){
+  if(card.querySelector('.score-btns button.sel5')) return 'hecha';
+  const active = card.querySelector('.score-btns button[class*="sel"]');
+  return active ? active.dataset.est : 'pendiente';
+}
+async function updateAsignacion(id, estado, comentario, foto){
+  try{ await apiPost({action:'update_asignacion', id:id, estado:estado, comentario:comentario, foto:foto||null}); cache.tareas=null; renderTareas(); }
+  catch(err){ alert('No se pudo actualizar: '+err.message); }
+}
+function renderTareaSeguimiento(head, data){
+  let html = head;
+  if(data.tareas.length===0){ html += '<div class="empty">Sin tareas creadas.</div>'; document.getElementById('main').innerHTML = html; return; }
+  data.tareas.slice().reverse().forEach(function(t){
+    const asigs = data.asignaciones.filter(function(a){return a.tarea_id===t.id;});
+    const hechas = asigs.filter(function(a){return a.estado==='hecha';}).length;
+    const pct = asigs.length ? Math.round(hechas/asigs.length*100) : 0;
+    html += '<div class="card"><div style="display:flex;justify-content:space-between;"><b>'+t.titulo+'</b><span style="font-family:var(--font-mono);font-weight:600;">'+pct+'%</span></div>'+
+      '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:8px;">'+(t.fecha_limite?'Vence '+t.fecha_limite+' · ':'')+hechas+'/'+asigs.length+' tiendas completadas</div>';
+    asigs.forEach(function(a){ html += '<div class="row-item" style="padding:8px 10px;"><div class="meta"><div class="d" style="font-size:12.5px;">'+storeName(a.tienda_id)+'</div></div><span class="pill '+a.estado+'">'+a.estado.replace('_',' ')+'</span></div>'; });
+    html += '</div>';
+  });
+  document.getElementById('main').innerHTML = html;
+}
+
+/* ======================= MODULO: MATERIALES (mensual + consolidado) ======================= */
+async function renderMateriales(){
+  const auth = getAuth();
+  const tabs = [];
+  tabs.push({id:'pedido',label: auth.rol==='jefe_tienda'?'Mi pedido del mes':'Pedidos'});
+  if(auth.rol!=='jefe_tienda'){ tabs.push({id:'consolidado',label:'Consolidado'}); tabs.push({id:'cumplimiento',label:'Cumplimiento'}); }
+  if(!tabs.find(function(t){return t.id===state.subTab.materiales;})) state.subTab.materiales = tabs[0].id;
+  const active = state.subTab.materiales;
+  document.getElementById('main').innerHTML = subtabsHTML(tabs, active) + '<div class="empty">Cargando…</div>';
+  bindSubtabs('materiales', renderMateriales);
+  let data;
+  try{ data = await apiGet('action=list_solicitudes'); if(!data.ok) throw new Error(data.error); } catch(err){ document.getElementById('main').innerHTML = subtabsHTML(tabs, active) + errorCard(err); return; }
+  data.rows = data.rows.filter(function(r){ return r.tipo==='material'; });
+  const head = subtabsHTML(tabs, active);
+  if(active==='pedido') renderMatPedido(head, data);
+  else if(active==='consolidado') renderMatConsolidado(head, data);
+  else if(active==='cumplimiento') renderMatCumplimiento(head, data);
+}
+function renderMatPedido(head, data){
+  const auth = getAuth();
+  const mes = currentMes();
+  const diaHoy = new Date().getDate();
+  const ventanaAbierta = diaHoy <= 5;
+  let html = head + '<div class="status-line '+(ventanaAbierta?'ok':'bad')+'">'+
+    (ventanaAbierta ? 'Ventana de pedidos abierta (días 1 al 5). Mes actual: '+mes : 'Ventana cerrada — tu pedido quedará marcado como atrasado. Mes actual: '+mes)+
+  '</div>';
+  if(auth.rol==='jefe_tienda'){
+    html += '<div class="card"><h2 class="section-title">Agregar ítem al pedido</h2>'+
+      '<div class="row3"><div><label class="field-label">Producto</label><input type="text" id="matProd"></div>'+
+      '<div><label class="field-label">Cantidad</label><input type="number" id="matCant"></div>'+
+      '<div><label class="field-label">Unidad</label><input type="text" id="matUnidad" placeholder="cajas, unid, m2…"></div></div>'+
+      '<div style="margin-top:10px;"><label class="field-label">Motivo (opcional)</label><input type="text" id="matDesc"></div>'+
+      '<button class="save-btn" id="addMatBtn" style="margin-top:10px;">Agregar al pedido de este mes</button></div>';
+  }
+  const scope = auth.rol==='jefe_tienda' ? [auth.tienda_id] : scopedStores().map(function(s){return s.id;});
+  const misItems = data.rows.filter(function(r){ return r.mes===mes && scope.indexOf(r.tienda_id)>=0; });
+  html += '<div class="card"><h2 class="section-title">Pedido de '+mes+'</h2>';
+  if(misItems.length===0){ html += '<div class="empty">Sin ítems aún.</div>'; }
+  else{
+    misItems.forEach(function(r){
+      html += '<div class="row-item"><div class="meta"><div class="d">'+r.producto_asunto+' — '+r.cantidad+' '+r.unidad+'</div>'+
+        '<div class="s">'+(auth.rol!=='jefe_tienda'?storeName(r.tienda_id)+' · ':'')+(r.descripcion||'')+'</div></div>'+
+        '<span class="pill '+r.estado+'">'+r.estado+'</span>'+(r.atrasada==='Si'?'<span class="pill atrasada">atrasado</span>':'')+'</div>';
+    });
+  }
+  html += '</div>';
+  document.getElementById('main').innerHTML = html;
+  const addBtn = document.getElementById('addMatBtn');
+  if(addBtn) addBtn.addEventListener('click', async function(){
+    const prod = document.getElementById('matProd').value.trim();
+    if(!prod){ alert('Falta el producto'); return; }
+    try{
+      await apiPost({action:'save_solicitud', tienda_id:auth.tienda_id, tipo:'material', producto_asunto:prod,
+        cantidad:document.getElementById('matCant').value, unidad:document.getElementById('matUnidad').value, descripcion:document.getElementById('matDesc').value});
+      cache.solicitudes=null; renderMateriales();
+    }catch(err){ alert('Error: '+err.message); }
+  });
+}
+function renderMatConsolidado(head, data){
+  const mes = currentMes();
+  const items = data.rows.filter(function(r){return r.mes===mes;});
+  const cons = data.consolidados.find(function(c){return c.mes===mes;});
+  const estado = cons ? cons.estado : 'abierto';
+  let html = head + '<div class="card"><h2 class="section-title">Consolidado — '+mes+'</h2>'+
+    '<div class="status-line '+(estado==='enviado'?'ok':'')+'">Estado: <b>'+estado+'</b>'+(cons&&cons.aprobado_por?' · aprobado por '+cons.aprobado_por:'')+'</div>';
+  if(items.length===0){ html += '<div class="empty">Sin pedidos este mes todavía.</div>'; }
+  else{
+    html += '<div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Tienda</th><th>Producto</th><th>Cant.</th><th>Unidad</th><th>Estado</th></tr></thead><tbody>';
+    items.forEach(function(r){ html += '<tr><td>'+storeName(r.tienda_id)+'</td><td>'+r.producto_asunto+'</td><td>'+r.cantidad+'</td><td>'+r.unidad+'</td><td>'+(r.atrasada==='Si'?'<span class="pill atrasada">atrasado</span>':'ok')+'</td></tr>'; });
+    html += '</tbody></table></div>';
+  }
+  html += '<div style="display:flex;gap:8px;margin-top:12px;">'+
+    '<button class="save-btn" id="btnAprobar">Aprobar consolidado</button>'+
+    '<button class="save-btn" id="btnEnviar" style="background:var(--teal);">Enviar a Operaciones</button>'+
+    '<button class="save-btn" id="btnCsvMat" style="background:var(--ink-soft);">CSV</button></div></div>';
+  document.getElementById('main').innerHTML = html;
+  document.getElementById('btnAprobar').addEventListener('click', async function(){
+    try{ await apiPost({action:'aprobar_consolidado', mes:mes}); cache.solicitudes=null; renderMateriales(); } catch(err){ alert('Error: '+err.message); }
+  });
+  document.getElementById('btnEnviar').addEventListener('click', async function(){
+    if(!confirm('¿Enviar el consolidado de '+mes+' a Operaciones?')) return;
+    try{ await apiPost({action:'enviar_consolidado', mes:mes}); cache.solicitudes=null; renderMateriales(); } catch(err){ alert('Error: '+err.message); }
+  });
+  document.getElementById('btnCsvMat').addEventListener('click', function(){
+    const rows = [['tienda','producto','cantidad','unidad','descripcion','atrasado']];
+    items.forEach(function(r){ rows.push([storeName(r.tienda_id), r.producto_asunto, r.cantidad, r.unidad, r.descripcion, r.atrasada]); });
+    downloadBlob('\uFEFF'+rows.map(function(r){return r.map(csvEscape).join(';');}).join('\n'), 'consolidado_materiales_'+mes+'.csv', 'text/csv;charset=utf-8');
+  });
+}
+function renderMatCumplimiento(head, data){
+  const mes = currentMes();
+  let html = head + '<div class="card"><h2 class="section-title">Cumplimiento envío mensual — '+mes+'</h2><div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Tienda</th><th>Estado</th></tr></thead><tbody>';
+  STORES.forEach(function(s){
+    const enviado = data.rows.some(function(r){return r.tienda_id===s.id && r.mes===mes;});
+    const atrasado = data.rows.some(function(r){return r.tienda_id===s.id && r.mes===mes && r.atrasada==='Si';});
+    html += '<tr><td>'+s.name+'</td><td>'+(enviado?('<span class="pill '+(atrasado?'atrasada':'hecha')+'">'+(atrasado?'enviado tarde':'enviado')+'</span>'):'<span class="pill rechazada">sin enviar</span>')+'</td></tr>';
+  });
+  html += '</tbody></table></div></div>';
+  document.getElementById('main').innerHTML = html;
+}
+
+/* ======================= MODULO: SOLICITUDES A ADMINISTRACION ======================= */
+async function renderSolicitudesAdmin(){
+  const auth = getAuth();
+  const tabs = [];
+  tabs.push({id:'nueva',label:'Nueva solicitud'});
+  if(auth.rol!=='jefe_tienda'){ tabs.push({id:'bandeja',label:'Bandeja'}); tabs.push({id:'cumplimiento',label:'Cumplimiento'}); }
+  if(!tabs.find(function(t){return t.id===state.subTab.solicitudes;})) state.subTab.solicitudes = tabs[0].id;
+  const active = state.subTab.solicitudes;
+  document.getElementById('main').innerHTML = subtabsHTML(tabs, active) + '<div class="empty">Cargando…</div>';
+  bindSubtabs('solicitudes', renderSolicitudesAdmin);
+  let data;
+  try{ data = await apiGet('action=list_solicitudes'); if(!data.ok) throw new Error(data.error); } catch(err){ document.getElementById('main').innerHTML = subtabsHTML(tabs, active) + errorCard(err); return; }
+  data.rows = data.rows.filter(function(r){ return r.tipo==='administracion'; });
+  const head = subtabsHTML(tabs, active);
+  if(active==='nueva') renderSolNueva(head, data);
+  else if(active==='bandeja') renderSolBandeja(head, data);
+  else if(active==='cumplimiento') renderSolCumplimiento(head, data);
+}
+function renderSolNueva(head, data){
+  const auth = getAuth();
+  let html = head;
+  if(auth.rol==='jefe_tienda'){
+    html += '<div class="card"><h2 class="section-title">Nueva solicitud a Administración</h2>'+
+      '<label class="field-label">Asunto</label><input type="text" id="solAsunto">'+
+      '<div style="margin-top:10px;"><label class="field-label">Descripción</label><textarea id="solDesc"></textarea></div>'+
+      '<div style="margin-top:10px;"><label class="field-label">Urgencia</label><select id="solUrg"><option value="normal">Normal</option><option value="alta">Alta</option></select></div>'+
+      '<button class="save-btn" id="addSolBtn" style="margin-top:10px;">Enviar solicitud</button></div>';
+  }
+  const scope = auth.rol==='jefe_tienda' ? [auth.tienda_id] : scopedStores().map(function(s){return s.id;});
+  const mios = data.rows.filter(function(r){ return scope.indexOf(r.tienda_id)>=0; }).sort(function(a,b){return new Date(b.fecha_solicitud)-new Date(a.fecha_solicitud);});
+  html += '<div class="card"><h2 class="section-title">Mis solicitudes</h2>';
+  if(mios.length===0){ html += '<div class="empty">Sin solicitudes aún.</div>'; }
+  else{
+    mios.forEach(function(r){
+      html += '<div class="row-item"><div class="meta"><div class="d">'+r.producto_asunto+'</div><div class="s">'+(auth.rol!=='jefe_tienda'?storeName(r.tienda_id)+' · ':'')+(r.descripcion||'')+'</div>'+
+        (r.respuesta_admin?'<div class="s" style="margin-top:4px;"><b>Respuesta:</b> '+r.respuesta_admin+'</div>':'')+'</div><span class="pill '+r.estado+'">'+r.estado+'</span></div>';
+    });
+  }
+  html += '</div>';
+  document.getElementById('main').innerHTML = html;
+  const addBtn = document.getElementById('addSolBtn');
+  if(addBtn) addBtn.addEventListener('click', async function(){
+    const asunto = document.getElementById('solAsunto').value.trim();
+    if(!asunto){ alert('Falta el asunto'); return; }
+    try{
+      await apiPost({action:'save_solicitud', tienda_id:auth.tienda_id, tipo:'administracion', producto_asunto:asunto,
+        descripcion:document.getElementById('solDesc').value, urgencia:document.getElementById('solUrg').value});
+      cache.solicitudes=null; renderSolicitudesAdmin();
+    }catch(err){ alert('Error: '+err.message); }
+  });
+}
+function renderSolBandeja(head, data){
+  let html = head + '<div class="card"><h2 class="section-title">Bandeja de solicitudes</h2>';
+  const pend = data.rows.filter(function(r){return r.estado==='pendiente';}).sort(function(a,b){return new Date(b.fecha_solicitud)-new Date(a.fecha_solicitud);});
+  if(pend.length===0){ html += '<div class="empty">Sin solicitudes pendientes.</div>'; }
+  document.getElementById('main').innerHTML = html + '</div>';
+  let extra = '';
+  pend.forEach(function(r){
+    extra += '<div class="card" data-sol="'+r.id+'"><div style="display:flex;justify-content:space-between;"><b>'+r.producto_asunto+'</b><span class="pill '+r.urgencia+'">'+r.urgencia+'</span></div>'+
+      '<div style="font-size:12px;color:var(--ink-soft);margin:4px 0 8px;">'+storeName(r.tienda_id)+' · '+r.solicitante+'</div>'+
+      (r.descripcion?'<div style="font-size:13px;margin-bottom:8px;">'+r.descripcion+'</div>':'')+
+      '<textarea class="respInp" placeholder="Respuesta (opcional)"></textarea>'+
+      '<div class="score-btns" style="margin-top:8px;"><button data-est="resuelta" class="sel5">Resolver</button><button data-est="rechazada" class="sel1">Rechazar</button></div></div>';
+  });
+  document.getElementById('main').insertAdjacentHTML('beforeend', extra);
+  document.querySelectorAll('[data-sol]').forEach(function(card){
+    card.querySelectorAll('.score-btns button').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        try{ await apiPost({action:'responder_solicitud', id:card.dataset.sol, estado:btn.dataset.est, respuesta:card.querySelector('.respInp').value}); cache.solicitudes=null; renderSolicitudesAdmin(); }
+        catch(err){ alert('Error: '+err.message); }
+      });
+    });
+  });
+}
+function renderSolCumplimiento(head, data){
+  const mes = currentMes();
+  let html = head + '<div class="card"><h2 class="section-title">Cumplimiento envío mensual — '+mes+'</h2><div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Tienda</th><th>Estado</th></tr></thead><tbody>';
+  STORES.forEach(function(s){
+    const enviado = data.rows.some(function(r){return r.tienda_id===s.id && r.mes===mes;});
+    const atrasado = data.rows.some(function(r){return r.tienda_id===s.id && r.mes===mes && r.atrasada==='Si';});
+    html += '<tr><td>'+s.name+'</td><td>'+(enviado?('<span class="pill '+(atrasado?'atrasada':'hecha')+'">'+(atrasado?'enviado tarde':'enviado')+'</span>'):'<span class="pill rechazada">sin enviar</span>')+'</td></tr>';
+  });
+  html += '</tbody></table></div></div>';
+  document.getElementById('main').innerHTML = html;
+}
+
+/* ======================= INICIO ======================= */
+renderShell();
 </script>
 </body>
 </html>
