@@ -229,7 +229,9 @@ async function apiPost(payload){
   payload.pin = auth ? auth.pin : '';
   const res = await fetch(url, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
   if(!res.ok) throw new Error('HTTP '+res.status);
-  return res.json();
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || 'El backend rechazó la operación');
+  return json;
 }
 function escAttr(s){ return (s||'').toString().replace(/"/g,'&quot;'); }
 function errorCard(err){ return '<div class="card"><div class="status-line bad">No se pudo cargar: '+err.message+'</div></div>'; }
