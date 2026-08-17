@@ -234,6 +234,7 @@ async function apiPost(payload){
   return json;
 }
 function escAttr(s){ return (s||'').toString().replace(/"/g,'&quot;'); }
+function escHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function errorCard(err){ return '<div class="card"><div class="status-line bad">No se pudo cargar: '+err.message+'</div></div>'; }
 function currentMes(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 
@@ -1051,7 +1052,15 @@ function renderMatPedido(head, data){
   // El backend ya filtra por rol (jefe_tienda solo ve su tienda); acá solo filtramos por mes.
   const misItems = data.rows.filter(function(r){ return r.mes===mes; });
   html += '<div class="card"><h2 class="section-title">Pedido de '+mes+'</h2>';
-  if(misItems.length===0){ html += '<div class="empty">Sin ítems aún.</div>'; }
+  if(misItems.length===0){
+    html += '<div class="empty">Sin ítems aún.</div>';
+    html += '<details style="margin-top:10px;font-size:11px;color:var(--ink-soft);"><summary>Diagnóstico (temporal)</summary>'+
+      '<div>Mes buscado: <b>'+mes+'</b></div>'+
+      '<div>Filas recibidas del backend (tipo=material): <b>'+data.rows.length+'</b></div>'+
+      '<pre style="white-space:pre-wrap;font-size:10px;background:#F5F4EF;padding:8px;border-radius:6px;">'+
+        escHtml(JSON.stringify(data.rows.slice(0,3), null, 2))+
+      '</pre></details>';
+  }
   else{
     misItems.forEach(function(r){
       html += '<div class="row-item"><div class="meta"><div class="d">'+r.producto_asunto+' — '+r.cantidad+' '+r.unidad+'</div>'+
