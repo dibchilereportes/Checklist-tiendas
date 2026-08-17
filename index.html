@@ -237,6 +237,15 @@ function escAttr(s){ return (s||'').toString().replace(/"/g,'&quot;'); }
 function escHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function errorCard(err){ return '<div class="card"><div class="status-line bad">No se pudo cargar: '+err.message+'</div></div>'; }
 function currentMes(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+// Google Sheets a veces auto-convierte "2026-08" a fecha real al guardarlo (ej: "2026-08-01T04:00:00.000Z").
+// Esta función normaliza cualquiera de los dos formatos de vuelta a "YYYY-MM" para poder comparar.
+function normalizeMes(v){
+  const s = String(v||'');
+  if(/^\d{4}-\d{2}$/.test(s)) return s;
+  const d = new Date(s);
+  if(!isNaN(d.getTime())) return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0');
+  return s;
+}
 
 /* ======================= FOTOS ======================= */
 function fileToCompressedDataURL(file){
@@ -1050,7 +1059,7 @@ function renderMatPedido(head, data){
       '<button class="save-btn" id="addMatBtn" style="margin-top:10px;">Agregar al pedido de este mes</button></div>';
   }
   // El backend ya filtra por rol (jefe_tienda solo ve su tienda); acá solo filtramos por mes.
-  const misItems = data.rows.filter(function(r){ return r.mes===mes; });
+  const misItems = data.rows.filter(function(r){ return normalizeMes(r.mes)===mes; });
   html += '<div class="card"><h2 class="section-title">Pedido de '+mes+'</h2>';
   if(misItems.length===0){
     html += '<div class="empty">Sin ítems aún.</div>';
@@ -1085,8 +1094,8 @@ function renderMatPedido(head, data){
 }
 function renderMatConsolidado(head, data){
   const mes = currentMes();
-  const items = data.rows.filter(function(r){return r.mes===mes;});
-  const cons = data.consolidados.find(function(c){return c.mes===mes;});
+  const items = data.rows.filter(function(r){return normalizeMes(r.mes)===mes;});
+  const cons = data.consolidados.find(function(c){return normalizeMes(c.mes)===mes;});
   const estado = cons ? cons.estado : 'abierto';
   let html = head + '<div class="card"><h2 class="section-title">Consolidado — '+mes+'</h2>'+
     '<div class="status-line '+(estado==='enviado'?'ok':'')+'">Estado: <b>'+estado+'</b>'+(cons&&cons.aprobado_por?' · aprobado por '+cons.aprobado_por:'')+'</div>';
@@ -1122,8 +1131,8 @@ function renderMatCumplimiento(head, data){
   const mes = currentMes();
   let html = head + '<div class="card"><h2 class="section-title">Cumplimiento envío mensual — '+mes+'</h2><div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Tienda</th><th>Estado</th></tr></thead><tbody>';
   STORES.forEach(function(s){
-    const enviado = data.rows.some(function(r){return r.tienda_id===s.id && r.mes===mes;});
-    const atrasado = data.rows.some(function(r){return r.tienda_id===s.id && r.mes===mes && r.atrasada==='Si';});
+    const enviado = data.rows.some(function(r){return r.tienda_id===s.id && normalizeMes(r.mes)===mes;});
+    const atrasado = data.rows.some(function(r){return r.tienda_id===s.id && normalizeMes(r.mes)===mes && r.atrasada==='Si';});
     html += '<tr><td>'+s.name+'</td><td>'+(enviado?('<span class="pill '+(atrasado?'atrasada':'hecha')+'">'+(atrasado?'enviado tarde':'enviado')+'</span>'):'<span class="pill rechazada">sin enviar</span>')+'</td></tr>';
   });
   html += '</tbody></table></div></div>';
@@ -1210,8 +1219,8 @@ function renderSolCumplimiento(head, data){
   const mes = currentMes();
   let html = head + '<div class="card"><h2 class="section-title">Cumplimiento envío mensual — '+mes+'</h2><div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Tienda</th><th>Estado</th></tr></thead><tbody>';
   STORES.forEach(function(s){
-    const enviado = data.rows.some(function(r){return r.tienda_id===s.id && r.mes===mes;});
-    const atrasado = data.rows.some(function(r){return r.tienda_id===s.id && r.mes===mes && r.atrasada==='Si';});
+    const enviado = data.rows.some(function(r){return r.tienda_id===s.id && normalizeMes(r.mes)===mes;});
+    const atrasado = data.rows.some(function(r){return r.tienda_id===s.id && normalizeMes(r.mes)===mes && r.atrasada==='Si';});
     html += '<tr><td>'+s.name+'</td><td>'+(enviado?('<span class="pill '+(atrasado?'atrasada':'hecha')+'">'+(atrasado?'enviado tarde':'enviado')+'</span>'):'<span class="pill rechazada">sin enviar</span>')+'</td></tr>';
   });
   html += '</tbody></table></div></div>';
