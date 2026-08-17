@@ -390,9 +390,17 @@ function subtabsHTML(tabs, active){
     return '<button data-sub="'+t.id+'" class="'+(active===t.id?'active':'')+'">'+t.label+'</button>';
   }).join('')+'</nav>';
 }
+let subtabsDelegated = false;
 function bindSubtabs(moduleKey, onChange){
-  document.querySelectorAll('[data-sub]').forEach(function(b){
-    b.addEventListener('click', function(){ state.subTab[moduleKey] = b.dataset.sub; onChange(); });
+  // Listener delegado en document: no se pierde aunque el contenido se vuelva a
+  // dibujar tras un fetch (antes, los botones quedaban "muertos" después de cargar datos).
+  if(subtabsDelegated) return;
+  subtabsDelegated = true;
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('[data-sub]');
+    if(!btn) return;
+    state.subTab[state.modTab] = btn.dataset.sub;
+    renderModule();
   });
 }
 
@@ -841,11 +849,14 @@ function renderCartCatalogo(head, data){
       return '<div class="row-item"><div class="meta"><div class="d">'+p.pieza+'</div><div class="s">'+(p.campania||'')+'</div></div></div>';
     }).join(''))+'</div>';
   document.getElementById('main').innerHTML = html;
-  document.getElementById('addPiezaBtn').addEventListener('click', async function(){
+  const piezaBtn = document.getElementById('addPiezaBtn');
+  piezaBtn.addEventListener('click', async function(){
     const pieza = document.getElementById('piezaInp').value.trim();
     if(!pieza){ alert('Falta el nombre de la pieza'); return; }
+    if(piezaBtn.disabled) return;
+    piezaBtn.disabled = true;
     try{ await apiPost({action:'save_carteleria_pieza', pieza:pieza, campania:document.getElementById('campInp').value.trim()}); renderCarteleria(); }
-    catch(err){ alert('Error: '+err.message); }
+    catch(err){ alert('Error: '+err.message); piezaBtn.disabled = false; }
   });
 }
 function renderCartMiTienda(head, data){
@@ -930,16 +941,19 @@ function renderTareaNueva(head){
   document.getElementById('chkTodas').addEventListener('change', function(e){
     document.querySelectorAll('.chkStore').forEach(function(c){ c.checked = e.target.checked; });
   });
-  document.getElementById('saveTareaBtn').addEventListener('click', async function(){
+  const tareaBtn = document.getElementById('saveTareaBtn');
+  tareaBtn.addEventListener('click', async function(){
     const titulo = document.getElementById('taTitulo').value.trim();
     const tiendas = Array.from(document.querySelectorAll('.chkStore:checked')).map(function(c){return c.value;});
     if(!titulo){ alert('Falta el título'); return; }
     if(tiendas.length===0){ alert('Selecciona al menos una tienda'); return; }
+    if(tareaBtn.disabled) return;
+    tareaBtn.disabled = true;
     try{
       await apiPost({action:'save_tarea', titulo:titulo, descripcion:document.getElementById('taDesc').value, fecha_limite:document.getElementById('taFecha').value, tiendas:tiendas});
       alert('Tarea creada y asignada a '+tiendas.length+' tienda(s).');
       state.subTab.tareas='seguimiento'; renderTareas();
-    }catch(err){ alert('Error: '+err.message); }
+    }catch(err){ alert('Error: '+err.message); tareaBtn.disabled = false; }
   });
 }
 function renderTareaMis(head, data){
@@ -1051,11 +1065,13 @@ function renderMatPedido(head, data){
   if(addBtn) addBtn.addEventListener('click', async function(){
     const prod = document.getElementById('matProd').value.trim();
     if(!prod){ alert('Falta el producto'); return; }
+    if(addBtn.disabled) return;
+    addBtn.disabled = true; addBtn.textContent = 'Guardando…';
     try{
       await apiPost({action:'save_solicitud', tienda_id:auth.tienda_id, tipo:'material', producto_asunto:prod,
         cantidad:document.getElementById('matCant').value, unidad:document.getElementById('matUnidad').value, descripcion:document.getElementById('matDesc').value});
       cache.solicitudes=null; renderMateriales();
-    }catch(err){ alert('Error: '+err.message); }
+    }catch(err){ alert('Error: '+err.message); addBtn.disabled = false; addBtn.textContent = 'Agregar al pedido de este mes'; }
   });
 }
 function renderMatConsolidado(head, data){
@@ -1076,12 +1092,16 @@ function renderMatConsolidado(head, data){
     '<button class="save-btn" id="btnEnviar" style="background:var(--teal);">Enviar a Operaciones</button>'+
     '<button class="save-btn" id="btnCsvMat" style="background:var(--ink-soft);">CSV</button></div></div>';
   document.getElementById('main').innerHTML = html;
-  document.getElementById('btnAprobar').addEventListener('click', async function(){
-    try{ await apiPost({action:'aprobar_consolidado', mes:mes}); cache.solicitudes=null; renderMateriales(); } catch(err){ alert('Error: '+err.message); }
+  const btnAprobar = document.getElementById('btnAprobar');
+  btnAprobar.addEventListener('click', async function(){
+    if(btnAprobar.disabled) return; btnAprobar.disabled = true;
+    try{ await apiPost({action:'aprobar_consolidado', mes:mes}); cache.solicitudes=null; renderMateriales(); } catch(err){ alert('Error: '+err.message); btnAprobar.disabled = false; }
   });
-  document.getElementById('btnEnviar').addEventListener('click', async function(){
+  const btnEnviar = document.getElementById('btnEnviar');
+  btnEnviar.addEventListener('click', async function(){
     if(!confirm('¿Enviar el consolidado de '+mes+' a Operaciones?')) return;
-    try{ await apiPost({action:'enviar_consolidado', mes:mes}); cache.solicitudes=null; renderMateriales(); } catch(err){ alert('Error: '+err.message); }
+    if(btnEnviar.disabled) return; btnEnviar.disabled = true;
+    try{ await apiPost({action:'enviar_consolidado', mes:mes}); cache.solicitudes=null; renderMateriales(); } catch(err){ alert('Error: '+err.message); btnEnviar.disabled = false; }
   });
   document.getElementById('btnCsvMat').addEventListener('click', function(){
     const rows = [['tienda','producto','cantidad','unidad','descripcion','atrasado']];
@@ -1145,11 +1165,13 @@ function renderSolNueva(head, data){
   if(addBtn) addBtn.addEventListener('click', async function(){
     const asunto = document.getElementById('solAsunto').value.trim();
     if(!asunto){ alert('Falta el asunto'); return; }
+    if(addBtn.disabled) return;
+    addBtn.disabled = true; addBtn.textContent = 'Enviando…';
     try{
       await apiPost({action:'save_solicitud', tienda_id:auth.tienda_id, tipo:'administracion', producto_asunto:asunto,
         descripcion:document.getElementById('solDesc').value, urgencia:document.getElementById('solUrg').value});
       cache.solicitudes=null; renderSolicitudesAdmin();
-    }catch(err){ alert('Error: '+err.message); }
+    }catch(err){ alert('Error: '+err.message); addBtn.disabled = false; addBtn.textContent = 'Enviar solicitud'; }
   });
 }
 function renderSolBandeja(head, data){
